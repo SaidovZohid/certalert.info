@@ -1,0 +1,12 @@
+{% extends "partials/base.html" %} {% block content %}
+<body>
+  <div class="flex items-center justify-center flex-col h-full">
+    <h2 class="text-4xl mb-5 font-bold text-blue-600">
+      Oops! An error occurred. Please try again.
+    </h2>
+    <code class="text-white p-3 border-2 bg-red-600 rounded-xl"
+      >{{error}}</code
+    >
+  </div>
+</body>
+{% endblock %}

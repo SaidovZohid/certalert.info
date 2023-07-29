@@ -1,0 +1,82 @@
+{% extends "partials/base.html" %} {% block content %}
+<body>
+  <div
+    class="flex flex-col justify-center items-center w-full h-full font-bold"
+  >
+    <form
+      hx-trigger="submit"
+      hx-post="/login/user"
+      class="w-[500px] flex flex-col"
+    >
+      <h1 class="mb-4 text-xl text-gray-900 text-center">
+        Welcome Back to CertAlert!
+      </h1>
+      {% if error %}
+      <div class="w-[500px] flex justify-center bg-red-500 mb-4 rounded-lg p-2">
+        <h4 class="text-white">{{error}}</h4>
+      </div>
+      {% endif %}
+      <div class="mb-6">
+        <label
+          for="email"
+          class="block mb-2 text-sm font-medium text-white dark:text-black"
+          >Your email</label
+        >
+        <input
+          type="email"
+          name="email"
+          id="email"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="name@flowbite.com"
+          required
+        />
+      </div>
+      <div class="mb-6">
+        <label
+          for="password"
+          class="block mb-2 text-sm font-medium text-gray-900"
+          >Your password</label
+        >
+        <input
+          name="password"
+          type="password"
+          id="password"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          required
+          placeholder="password"
+        />
+      </div>
+      <button
+        type="submit"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      >
+        Sign in
+      </button>
+      <a
+        href="/login/google"
+        class="py-2 px-4 flex items-center justify-center bg-black mt-4 text-center text-white w-full font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-opacity-75 cursor-pointer"
+      >
+        <img
+          width="30px"
+          class="mr-1"
+          src="../../static/google.svg"
+          alt="gogle"
+        />
+        Sign in with Google
+      </a>
+      <div class="flex justify-between mt-4 text-black">
+        <a
+          href="/signup"
+          class="underline hover:no-underline hover:text-blue-600 transition-colors"
+          >Sign up</a
+        >
+        <a
+          href=""
+          class="underline hover:no-underline hover:text-blue-600 transition-colors"
+          >Forgot your password?</a
+        >
+      </div>
+    </form>
+  </div>
+</body>
+{% endblock %}

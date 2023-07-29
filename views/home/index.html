@@ -1,0 +1,12 @@
+{% extends "partials/base.html" %} {% block content %}
+<body>
+  <!-- TODO: write the html of home page  -->
+  {% if user.Email %}
+  <h1>User is authintacated -> {{user.Email}}</h1>
+  <a href="/logout">Log out</a>
+  {% else %}
+  <h1>User is not authintacated</h1>
+  <a href="/signup">Sign up</a>
+  <a href="/login">Log in</a>
+</body>
+{% endif %} {% endblock %}

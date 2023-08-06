@@ -100,31 +100,7 @@ func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// userCreated, err := h.strg.User().CreateUser(context.Background(), &models.User{
-	// 	FirstName: splitedName[0],
-	// 	LastName:  splitedName[1],
-	// 	Email:     req.Email,
-	// 	Password:  password,
-	// })
-	// if err != nil {
-	// 	h.log.Error(err)
-	// 	return c.Render("signup/index", fiber.Map{
-	// 		"error": "Password is not valid.",
-	// 	})
-	// }
-
-	// if err := handleLoginDependencies(c, h, userCreated.ID, &User{
-	// 	FirstName: userCreated.FirstName,
-	// 	LastName:  userCreated.LastName,
-	// 	Email:     userCreated.Email,
-	// }); err != nil {
-	// 	h.log.Error(err)
-	// 	return c.Render("signup/index", fiber.Map{
-	// 		"error": "Try again, something went wrong.",
-	// 	})
-	// }
-
-	return c.Redirect(h.cfg.BaseUrl+"/test", 302)
+	return c.SendString("Verification link sent to " + req.Email)
 }
 
 func (h *handlerV1) HandleVerifyUserSignUp(c *fiber.Ctx) error {
@@ -206,7 +182,7 @@ func (h *handlerV1) HandeLoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Redirect(c.BaseURL()+"/", 301)
+	return c.Redirect("/domains", 302)
 }
 
 // Google sign in or up redirect user to google
@@ -267,7 +243,7 @@ func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.Redirect(c.BaseURL()+"/", 301)
+	return c.Redirect("/domains", 302)
 }
 
 // Handle log out from website

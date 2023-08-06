@@ -1,2 +1,4 @@
 [ ] write the frontend page of forget password and logic in backend
-[ ] Write the big logic of getting ssl certificate info. Using goroutines, channels and waitgroup
+[ ] Add SQL Injection Checker and Transaction
+
+[v] Write the big logic of getting ssl certificate info. Using goroutines, channels and waitgroup

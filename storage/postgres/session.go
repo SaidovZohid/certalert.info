@@ -6,18 +6,21 @@ import (
 	"errors"
 	"time"
 
+	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 type sessionRepo struct {
-	db *sqlx.DB
+	db  *sqlx.DB
+	log logger.Logger
 }
 
-func NewSession(db *sqlx.DB) models.SessionStorageI {
+func NewSession(db *sqlx.DB, log logger.Logger) models.SessionStorageI {
 	return &sessionRepo{
-		db: db,
+		db:  db,
+		log: log,
 	}
 }
 

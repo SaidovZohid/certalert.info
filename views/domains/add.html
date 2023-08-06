@@ -1,0 +1,61 @@
+{% extends "partials/base.html" %} 
+{% block content %} 
+{% include "partials/header.html"%}
+
+<div class="flex w-full max-w-[1250px] mx-auto">
+  <aside
+    class="min-h-screen w-[15%] text-gray-700 px-4 pt-8 bg-white" 
+  >
+    <a
+      href="/domains"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white  p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Domains</a
+    >
+    <a
+      href="#menu-item-3"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white  p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Account</a
+    >
+    <a
+      href="#menu-item-4"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white  p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Notifications</a
+    >
+    <a
+      href="#menu-item-5"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white  p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Integrations</a
+    >
+    <a
+      href="#menu-item-5"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white  p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Sign out</a
+    >
+  </aside>
+  <main class="w-full h-screen bg-white"> <!-- Changed background color -->
+    <form
+      action="/domains/add/new"
+      method="post"
+      class="content text-white my-8 w-full"
+    >
+      <div class="content text-black my-8 w-full" id="menu-item-2">
+        <h2 class="text-2xl font-bold mb-2">Track More Domains</h2>
+        <p class="font-medium">
+          Add one or more domains, separated by spaces, that you want to track.
+        </p>
+        <div>
+          <textarea
+            name="domains"
+            class="w-[700px] mt-2 h-[200px] bg-[#E5E7EB] border p-2 focus:border-collapse resize-none rounded-md block mb-4 placeholder:text-gray-600" 
+            placeholder="certalert.info zohiddev.me"
+            required
+          ></textarea>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 p-2 rounded-md text-white"> 
+            Track domains
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+</div>
+{% endblock %}

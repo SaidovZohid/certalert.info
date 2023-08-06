@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "last_name" VARCHAR NOT NULL,
     "email" VARCHAR NOT NULL,
     "password" VARCHAR NOT NULL,
+    "domains_last_check" TIMESTAMP,
     "created_at" TIMESTAMP DEFAULT timezone('Asia/Tashkent', CURRENT_TIMESTAMP) NOT NULL
 );
 
@@ -22,4 +23,25 @@ CREATE TABLE IF NOT EXISTS "sessions" (
     "is_blocked" BOOLEAN NOT NULL DEFAULT false,
     "last_login" TIMESTAMP NOT NULL,
     "created_at"  TIMESTAMP DEFAULT timezone('Asia/Tashkent', CURRENT_TIMESTAMP) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "tracking_domains" (
+    "id" BIGSERIAL PRIMARY KEY,
+    "domain" VARCHAR NOT NULL,
+    "user_id" BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    "remote_address" VARCHAR,
+    "issuer" VARCHAR,
+    "signature_algo" VARCHAR,
+    "public_key_algo" VARCHAR,
+    "encoded_pem" VARCHAR,
+    "public_key" VARCHAR,
+    "signature" VARCHAR,
+    "dns_names" VARCHAR,
+    "key_usage" VARCHAR,
+    "ext_key_usages" VARCHAR ARRAY,
+    "expires" TIMESTAMP,
+    "status" VARCHAR,
+    "last_poll_at" TIMESTAMP,
+    "latency" BIGINT,
+    "error" VARCHAR
 );

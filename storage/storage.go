@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
 	"github.com/SaidovZohid/certalert.info/storage/postgres"
 	"github.com/jmoiron/sqlx"
@@ -9,17 +10,20 @@ import (
 type StorageI interface {
 	User() models.UserStorageI
 	Session() models.SessionStorageI
+	Domain() models.DomainStorageI
 }
 
 type StoragePg struct {
 	userRepo    models.UserStorageI
 	sessionRepo models.SessionStorageI
+	domainRepo  models.DomainStorageI
 }
 
-func NewStoragePg(db *sqlx.DB) StorageI {
+func NewStoragePg(db *sqlx.DB, log logger.Logger) StorageI {
 	return &StoragePg{
-		userRepo:    postgres.NewUser(db),
-		sessionRepo: postgres.NewSession(db),
+		userRepo:    postgres.NewUser(db, log),
+		sessionRepo: postgres.NewSession(db, log),
+		domainRepo:  postgres.NewDomain(db, log),
 	}
 }
 
@@ -29,4 +33,8 @@ func (s *StoragePg) User() models.UserStorageI {
 
 func (s *StoragePg) Session() models.SessionStorageI {
 	return s.sessionRepo
+}
+
+func (s *StoragePg) Domain() models.DomainStorageI {
+	return s.domainRepo
 }

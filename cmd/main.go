@@ -31,42 +31,30 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-
+	defer psqlConn.Close()
 	rdb := redis.NewClient(&redis.Options{
 		Addr: cfg.Redis,
 	})
 
-	strg := storage.NewStoragePg(psqlConn)
+	strg := storage.NewStoragePg(psqlConn, log)
 	inMemory := storage.NewInMemoryStorage(rdb)
 
 	app := api.New(&api.RoutetOptions{
-		Cfg:  &cfg,
-		Log:  log,
-		Strg: strg,
+		Cfg:      &cfg,
+		Log:      log,
+		Strg:     strg,
 		InMemory: inMemory,
 	})
+
+	// ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+
+	// dm, err := ssl.PollDomain(ctx, "zohiddev.me")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.Info(dm.Status)
+	// cancel()
 
 	log.Info("HTTP running in PORT -> ", cfg.HttpPort)
 	log.Fatal("error while listening http port:", app.Listen(cfg.HttpPort))
 }
-
-// // Create a TLS configuration
-// tlsConfig := &tls.Config{}
-
-// // Establish a connection to the server
-// conn, err := tls.Dial("tcp", "uzmovi.com:443", tlsConfig)
-// if err != nil {
-// 	fmt.Println("Failed to connect:", err)
-// 	return
-// }
-// defer conn.Close()
-
-// // Retrieve the peer certificate
-// cert := conn.ConnectionState().PeerCertificates[0]
-
-// // Extract and print the certificate details
-// fmt.Println("Certificate Subject:", cert.Subject)
-// fmt.Println("Certificate Issuer:", cert.Issuer)
-// fmt.Println("Certificate Expiration Date:", cert.NotAfter)
-// fmt.Println("Certificate DNS:", cert.DNSNames)
-// fmt.Println("Certificate Signature:", cert.Issuer.Organization)

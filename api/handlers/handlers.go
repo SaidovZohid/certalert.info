@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,10 +10,12 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/SaidovZohid/certalert.info/config"
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
+	"github.com/SaidovZohid/certalert.info/pkg/ssl"
 	"github.com/SaidovZohid/certalert.info/pkg/utils"
 	"github.com/SaidovZohid/certalert.info/storage"
 	"github.com/SaidovZohid/certalert.info/storage/models"
@@ -66,7 +69,6 @@ func (h *handlerV1) getUserInfoFromGoogle(token string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println(userinfo)
 
 	var data User
 	data.Email = userinfo["email"].(string)
@@ -205,3 +207,153 @@ func getCurrentTimeInTimeZone(timezone string) (time.Time, error) {
 
 	return currentTime, nil
 }
+
+type TrackDomainAdd struct {
+	Domains []string
+	UserID  int64
+	Log     *logger.Logger
+	Strg    storage.StorageI
+}
+
+func TrackDomainsAdded(t *TrackDomainAdd) error {
+	var (
+		workers = make(chan struct{}, 15)
+		wg      = sync.WaitGroup{}
+	)
+	for _, domain := range t.Domains {
+		hasDomainInDB, err := t.Strg.Domain().GetDomainWithUserIDAndDomainName(context.Background(), &ssl.DomainTracking{
+			UserID:     t.UserID,
+			DomainName: domain,
+		})
+		if (err != nil && !errors.Is(err, sql.ErrNoRows)) || hasDomainInDB != nil {
+			t.Log.Error(err)
+			continue
+		}
+		wg.Add(1)
+		go func(domain string) {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+			workers <- struct{}{}
+			defer func() {
+				<-workers
+				wg.Done()
+				cancel()
+			}()
+
+			info, err := ssl.PollDomain(ctx, domain)
+			if err != nil {
+				t.Log.Error(err)
+				return
+			}
+
+			domainInfo, err := t.Strg.Domain().CreateTrackingDomain(context.Background(), &ssl.DomainTracking{
+				UserID:             t.UserID,
+				DomainName:         domain,
+				TrackingDomainInfo: *info,
+			})
+			if err != nil {
+				t.Log.Error(err)
+				return
+			}
+
+			_ = domainInfo
+		}(domain)
+	}
+
+	wg.Wait()
+
+	return nil
+}
+
+func (h *handlerV1) CheckExistingDomains(userID int64, domains []string) error {
+	var (
+		workers           = make(chan struct{}, 15)
+		wg                = sync.WaitGroup{}
+		mutex             = sync.Mutex{}
+		domainInfoUpdates []ssl.DomainTracking // Slice to store domain info updates
+
+	)
+
+	responseChannel := make(chan ssl.DomainTracking, len(domains))
+	for _, domain := range domains {
+		hasDomainInDB, err := h.strg.Domain().GetDomainWithUserIDAndDomainName(context.Background(), &ssl.DomainTracking{
+			UserID:     userID,
+			DomainName: domain,
+		})
+		if (err != nil && errors.Is(err, sql.ErrNoRows)) || hasDomainInDB == nil {
+			h.log.Error(err)
+			continue
+		}
+		wg.Add(1)
+		go func(domain string, id int64) {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+			workers <- struct{}{}
+			defer func() {
+				<-workers
+				wg.Done()
+				cancel()
+			}()
+
+			info, err := ssl.PollDomain(ctx, domain)
+			if err != nil {
+				h.log.Error(err)
+				return
+			}
+
+			responseChannel <- ssl.DomainTracking{
+				UserID:             userID,
+				ID:                 id,
+				TrackingDomainInfo: *info,
+			}
+
+			_ = info
+		}(domain, hasDomainInDB.ID)
+	}
+
+	wg.Wait()
+
+	close(responseChannel) // Close the response channel
+
+	// Collect responses and append to the domainInfoUpdates slice
+	for domainInfo := range responseChannel {
+		domainInfoUpdates = append(domainInfoUpdates, domainInfo)
+	}
+
+	// Update domain info in a separate loop to avoid locking while updating
+	for _, info := range domainInfoUpdates {
+		mutex.Lock()
+		err := h.strg.Domain().UpdateExistingDomainInfo(context.Background(), &info)
+		mutex.Unlock()
+		if err != nil {
+			h.log.Error(err)
+		}
+	}
+
+	err := h.strg.User().UpdateUserLastPoll(context.Background(), userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var htmlCode = `
+<div
+  id="alert-1"
+  class="flex items-center p-4 mb-4 mt-4 text-gray-900 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-white"
+  role="alert"
+>
+  <svg
+    class="flex-shrink-0 w-4 h-4"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="currentColor"
+    viewBox="0 0 20 20"
+  >
+    <path
+      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+    />
+  </svg>
+  <span class="sr-only">Info</span>
+  <div class="ml-3 text-sm font-medium">%v</div>
+</div>
+`

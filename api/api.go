@@ -2,11 +2,14 @@ package api
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 
 	h "github.com/SaidovZohid/certalert.info/api/handlers"
 	"github.com/SaidovZohid/certalert.info/config"
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
+	"github.com/SaidovZohid/certalert.info/pkg/ssl"
 	"github.com/SaidovZohid/certalert.info/storage"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/django/v3"
@@ -28,16 +31,11 @@ func New(opt *RoutetOptions) *fiber.App {
 
 	app := fiber.New(fiber.Config{
 		EnableIPValidation:      true,
-		DisableStartupMessage:   true,
 		Views:                   engine,
 		EnableTrustedProxyCheck: true,
+		PassLocalsToViews:       true,
 		WriteTimeout:            10 * time.Minute,
-		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			opt.Log.Error(err)
-			return c.Render("errors/500", fiber.Map{
-				"error": err.Error(),
-			})
-		},
+		ErrorHandler:            HandleError,
 	})
 
 	// Redirect invalid API requests to the main URL
@@ -46,11 +44,79 @@ func New(opt *RoutetOptions) *fiber.App {
 		c.Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
 		return c.Next()
 	})
-
+	app.Use(h.WithFlash)
 	app.Use(favicon.New(favicon.Config{
 		File: "./static/favicon.ico",
 		URL:  "/favicon.ico",
 	}))
+
+	// handlers for html
+	// engine.AddFunc("aside", func(id int) string {
+	// 	log.Println("Something")
+	// 	return fmt.Sprintf(aside, id)
+	// })
+	engine.AddFunc("expires", func(tm interface{}) string {
+		if tm == nil {
+			return "Unavailable"
+		}
+
+		timeNow := time.Now()
+		expirationTime := tm.(*time.Time)
+
+		if timeNow.Equal(*expirationTime) {
+			return "Unavailable"
+		}
+
+		daysLeft := expirationTime.Sub(timeNow).Hours() / 24
+		if daysLeft == 1 {
+			return "1 day"
+		} else if daysLeft > 1 {
+			return fmt.Sprintf("%.0f days", daysLeft)
+		}
+
+		return "Expired"
+	})
+	engine.AddFunc("issuer", func(issuer interface{}) string {
+		if issuer == nil {
+			return "Unavailable"
+		}
+		is := issuer.(*string)
+		return *is
+	})
+	engine.AddFunc("domainStatus", func(status *string) string {
+		switch *status {
+		case ssl.StatusExpired:
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-red-600 domain-status">%v</td>`, ssl.StatusExpired)
+		case ssl.StatusHealthy:
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-green-600 domain-status">%v</td>`, ssl.StatusHealthy)
+		case ssl.StatusInvalid:
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-yellow-600 domain-status">%v</td>`, ssl.StatusInvalid)
+		case ssl.StatusOffline:
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-teal-600 domain-status">%v</td>`, ssl.StatusOffline)
+		case ssl.StatusUnResponsive:
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-gray-400 domain-status">%v</td>`, ssl.StatusUnResponsive)
+		case ssl.StatusExpires:
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-orange-600 domain-status">%v</td>`, ssl.StatusExpires)
+		}
+		return `<td class="px-4 py-2 font-bold">Unavailable</td>`
+	})
+	// engine.AddFunc("noDomains", func() string {
+	// 	return `<h1 class="text-black">No domains to track</h1>`
+	// })
+
+	engine.AddFunc("ipAddress", func(ip interface{}) string {
+		if ip == nil {
+			return "Unavailable"
+		}
+
+		ipAddr := *ip.(*string)
+
+		// Remove :443 from each IP address
+		parts := strings.Split(ipAddr, ":")
+
+		return parts[0]
+	})
+
 	app.Static("/static", "./static")
 
 	handlers := h.New(&h.HandlerV1Options{
@@ -82,6 +148,13 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Get("/login/google/callback", handlers.SimpleAuthMiddleware, handlers.HandleGoogleCallback)
 
 	app.Get("/logout", handlers.HandleLogout)
+
+	app.Get("/domains", handlers.AuthMiddleware, handlers.HandleDomainsPage)
+	app.Post("/domains/add/new", handlers.AuthMiddleware, handlers.AddNewDomains)
+	app.Get("/domains/add", handlers.AuthMiddleware, handlers.AddNewDomainsPage)
+	app.Delete("/domains/stop", handlers.AuthMiddleware, handlers.HandleStopMonitoring)
+	app.Get("/domains/check", handlers.AuthMiddleware, handlers.HandleCheckDomains)
+	app.Get("/domains/more/:id", handlers.AuthMiddleware, handlers.HandleDomainInfoShowPage)
 
 	return app
 }

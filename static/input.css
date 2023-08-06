@@ -2,3 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide the indicator by default */
+.htmx-indicator {
+  display: none;
+}
+
+/* Show the indicator while the request is ongoing */
+.htmx-request .spinning-indicator {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 0.75rem; /* Equivalent to mr-3 in Tailwind CSS */
+  color: #CBD2D9; /* Equivalent to text-gray-200 in Tailwind CSS */
+  animation: spin 1.5s infinite linear;
+}
+
+/* Dark mode styles */
+.htmx-request.dark .spinning-indicator {
+  color: #718096; /* Equivalent to dark:text-gray-600 in Tailwind CSS */
+}
+
+/* Define the spinning animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+

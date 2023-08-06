@@ -1,0 +1,433 @@
+{% extends "partials/base.html" %} {% block content %} {% include "partials/header.html"%}
+<div class="flex w-full max-w-[1250px] mx-auto">
+  <aside
+    class="min-h-screen w-[15%] text-gray-600 px-4 pt-8 [&>*:nth-child(1)]:bg-gray-800 [&>*:nth-child(1)]:text-white"
+  >
+    <a
+      href="/domains"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Domains</a
+    >
+    <a
+      href="#menu-item-3"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Account</a
+    >
+    <a
+      href="#menu-item-4"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Notifications</a
+    >
+    <a
+      href="#menu-item-5"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Integrations</a
+    >
+    <a
+      href="/logout"
+      class="block text-lg font-medium mb-2 hover:bg-gray-800 hover:text-white p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      >Sign out</a
+    >
+  </aside>
+  <main class="w-full h-screen">
+    <!-- Content for Menu Item 1 -->
+    <div class="content text-black my-8 w-full" id="menu-item-1">
+      <!-- table -->
+      {% if domains %}
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h2 class="text-2xl font-bold mb-1">Tracked domains</h2>
+          <p class="text-gray-700 font-medium">
+            Certificates that are currently being monitored
+          </p>
+        </div>
+        <div class="flex items-center">
+          <!-- Add the "Stop Monitoring" button here -->
+          <div class="mr-3">
+            <button
+              id="stopMonitoringButton"
+              class="bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-white px-4 py-2 rounded-md shadow-md hidden transition-colors duration-300 ease-in-out"
+            >
+              Stop Monitoring
+            </button>
+          </div>
+          <form action="/domains/add" method="GET" class="inline-block">
+            <button
+              type="submit"
+              class="py-2.5 px-5 mr-3 text-sm font-medium bg-sky-600 rounded-lg text-white hover:bg-sky-500 focus:ring-4 focus:outline-none mt-4"
+            >
+              Add Domains
+            </button>
+          </form>
+          <button
+            hx-get="/domains/check"
+            hx-swap="outerHTML"
+            id="checkAllCertificatesButton"
+            hx-target="#success"
+            class="py-2.5 px-5 mr-2 text-sm font-medium bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 inline-flex items-center focus:ring-4 focus:outline-none focus:ring-[#212529]/50"
+          >
+            <span class="htmx-indicator spinning-indicator" id="spinner">
+              <svg
+                aria-hidden="true"
+                role="status"
+                viewBox="0 0 100 101"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                  fill="#1C64F2"
+                />
+              </svg>
+            </span>
+            Check Certificates Now
+          </button>
+        </div>
+      </div>
+      <!-- for showing search input -->
+      <div class="flex flex-col w-full max-w-[1250px] mx-auto space-x-4">
+        <div class="flex items-center space-x-4">
+          <input
+            type="text"
+            id="searchInput"
+            class="flex-grow px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            placeholder="Search domains with domain name and status of domain..."
+          />
+          <div class="flex items-center space-x-2 border rounded-lg px-4 py-2">
+            <span id="foundDomainsCount">{{domainsHas}}</span>
+          </div>
+        </div>
+      </div>
+      <!-- Modal for confirming stop tracking -->
+      <div
+        id="confirmModal"
+        class="fixed inset-0 z-10 items-center justify-center bg-gray-800 bg-opacity-50 hidden transition-opacity duration-300 ease-in-out"
+      >
+        <div class="bg-white w-80 p-6 rounded-lg shadow-lg">
+          <div class="flex justify-end">
+            <button
+              id="closeModal"
+              class="text-gray-600 hover:text-gray-800 focus:outline-none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18.293 18.293a1 1 0 0 1-1.414 0L10 11.414 2.121 19.293a1 1 0 1 1-1.414-1.414L8.586 10 1.707 2.121a1 1 0 1 1 1.414-1.414L10 8.586l7.879-7.879a1 1 0 1 1 1.414 1.414L11.414 10l7.879 7.879a1 1 0 0 1 0 1.414z"
+                />
+              </svg>
+            </button>
+          </div>
+          <p class="text-gray-800 text-lg mb-4">
+            Are you sure you want to stop tracking?
+          </p>
+          <div class="flex justify-end space-x-3">
+            <button
+              id="cancelButton"
+              class="text-gray-600 hover:text-gray-800 focus:outline-none transition-colors duration-300 ease-in-out"
+            >
+              Cancel
+            </button>
+            <button
+              id="confirmButton"
+              class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-300 ease-in-out"
+            >
+              Stop Monitoring
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- no domains found  -->
+      <div id="noDomainsFound" class="text-gray-700 font-medium mt-4 hidden">
+        Sorry, no domains match your search criteria.
+      </div>
+      <!-- for showing response info -->
+      <div id="success"></div>
+      <div
+        id="just-for-calling-status-colors"
+        class="text-red-600 text-green-600 text-yellow-600 text-teal-600 text-gray-400 text-orange-600"
+      ></div>
+      <div
+        id="alert-1"
+        class="items-center p-4 mb-4 text-gray-900 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-white hidden"
+        role="alert"
+      >
+        <svg
+          class="flex-shrink-0 w-4 h-4"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+          />
+        </svg>
+        <span class="sr-only">Info</span>
+        <div class="ml-3 text-sm font-medium">%v</div>
+      </div>
+      <!-- domains info -->
+      <div class="flex mt-3">
+        <table class="min-w-full">
+          <thead>
+            <tr>
+              <th class="w-8">
+                <input type="checkbox" id="checkAll" />
+              </th>
+              <!-- Header checkbox to check/uncheck all -->
+              <th class="px-4 py-2 text-left">Domain</th>
+              <th class="px-4 py-2 text-left">Issuer</th>
+              <th class="px-4 py-2 text-left">Expires In</th>
+              <th class="px-4 py-2 text-left">Status</th>
+              <th class="px-4 py-2 text-left">IP Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for domain in domains %}
+            <tr>
+              <td class="text-center">
+                <input
+                  type="checkbox"
+                  class="checkItem"
+                  data-domain-id="{{ domain.ID }}"
+                />
+              </td>
+              <!-- Checkbox column -->
+              <td class="domain-name px-4 py-2">
+                <a
+                  href="/domains/more/{{domain.ID}}"
+                  class="underline hover:no-underline"
+                  >{{domain.DomainName}}</a
+                >
+              </td>
+              <td class="px-4 py-2">{{issuer(domain.Issuer)}}</td>
+              <td class="px-4 py-2">{{expires(domain.Expires)}}</td>
+              {{domainStatus(domain.Status)}}
+              <td class="px-4 py-2">{{ipAddress(domain.RemoteAddr)}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <!-- {{noDomains()}} -->
+      <h2 class="text-2xl font-bold mb-4">Tracked domains</h2>
+      <h1>
+        There are currently no tracked domains. To get started, you can create a
+        new domain by simply clicking on this link:
+        <a href="/domains/add" class="text-blue-600 font-bold"
+          >Add New Domain.</a
+        >
+      </h1>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %} {% block script %}
+<script>
+  const checkAllCheckbox = document.getElementById("checkAll");
+  const checkboxes = document.querySelectorAll(".checkItem");
+  const stopMonitoringButton = document.getElementById("stopMonitoringButton");
+  const confirmModal = document.getElementById("confirmModal");
+  const closeModal = document.getElementById("closeModal");
+  const cancelButton = document.getElementById("cancelButton");
+  const confirmButton = document.getElementById("confirmButton");
+
+  // Close modal when close icon or outside the modal is clicked
+  closeModal.addEventListener("click", () => {
+    confirmModal.classList.add("hidden");
+  });
+
+  confirmModal.addEventListener("click", (event) => {
+    if (event.target === confirmModal) {
+      confirmModal.classList.add("hidden");
+    }
+  });
+
+  // Function to update the "X domains" text
+  function updateFoundDomainsCount(count) {
+    const foundDomainsCount = document.getElementById("foundDomainsCount");
+    if (foundDomainsCount) {
+      foundDomainsCount.textContent =
+        count + (count === 1 ? " domain" : " domains");
+    }
+  }
+
+  function toggleStopMonitoringButton() {
+    let checkedCount = 0;
+    checkboxes.forEach((checkbox) => {
+      const domainRow = checkbox.closest("tr");
+      const domainName = domainRow
+        .querySelector(".domain-name")
+        .textContent.toLowerCase();
+      const domainStatus = domainRow
+        .querySelector(".domain-status")
+        .textContent.toLowerCase();
+
+      if (
+        checkbox.checked &&
+        (domainName.includes(searchInput.value.toLowerCase()) ||
+          domainStatus.includes(searchInput.value.toLowerCase()))
+      ) {
+        checkedCount++;
+      }
+    });
+
+    if (checkedCount > 0) {
+      stopMonitoringButton.style.display = "block";
+    } else {
+      stopMonitoringButton.style.display = "none";
+    }
+  }
+
+  // checkAllCheckbox.addEventListener("change", function () {
+  //   checkboxes.forEach((checkbox) => {
+  //     checkbox.checked = this.checked;
+  //   });
+  //   toggleStopMonitoringButton();
+  // });
+  checkAllCheckbox.addEventListener("change", function () {
+    checkboxes.forEach((checkbox) => {
+      const domainRow = checkbox.closest("tr");
+      const domainName = domainRow
+        .querySelector(".domain-name")
+        .textContent.toLowerCase();
+      const domainStatus = domainRow
+        .querySelector(".domain-status")
+        .textContent.toLowerCase();
+
+      if (
+        this.checked &&
+        (domainName.includes(searchInput.value.toLowerCase()) ||
+          domainStatus.includes(searchInput.value.toLowerCase()))
+      ) {
+        checkbox.checked = true;
+      } else {
+        checkbox.checked = false;
+      }
+    });
+
+    toggleStopMonitoringButton();
+  });
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", toggleStopMonitoringButton);
+  });
+
+  stopMonitoringButton.addEventListener("click", () => {
+    confirmModal.style.display = "flex";
+  });
+
+  closeModal.addEventListener("click", () => {
+    confirmModal.style.display = "none";
+  });
+
+  cancelButton.addEventListener("click", () => {
+    confirmModal.style.display = "none";
+  });
+
+  confirmButton.addEventListener("click", () => {
+    // Implement the "Stop monitoring" functionality here
+    // You can get the IDs of selected domains and stop monitoring them
+    stopMonitoring();
+    reloadPage();
+    confirmModal.style.display = "none";
+  });
+  function reloadPage() {
+    location.reload();
+  }
+
+  // Function to get selected domain names
+  function getSelectedDomains() {
+    const selectedDomains = [];
+    checkboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        selectedDomains.push(checkbox.getAttribute("data-domain-id"));
+      }
+    });
+    return selectedDomains;
+  }
+  // Function to make a request to stop monitoring
+  async function stopMonitoring() {
+    const selectedDomainNames = getSelectedDomains();
+    if (selectedDomainNames.length === 0) return;
+
+    try {
+      const response = await fetch("/domains/stop", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ domains: selectedDomainNames }),
+      });
+
+      window.location.reload();
+      // Handle the response as needed...
+    } catch (error) {
+      console.error("Error stopping monitoring:", error);
+    }
+  }
+
+  // for hiding the info
+  // document.addEventListener("DOMContentLoaded", function () {
+  //   var alertDiv = document.getElementById("alert-1");
+  //   if (alertDiv) {
+  //     alertDiv.style.display = "none";
+  //   }
+  // });
+
+  function filterDomains(searchTerm) {
+    const domainRows = document.querySelectorAll("tbody tr");
+    const noDomainsFound = document.getElementById("noDomainsFound");
+    const tableHead = document.querySelector("thead");
+
+    let foundMatch = false;
+    let matchedDomainsCount = 0;
+
+    domainRows.forEach((row) => {
+      const domainName = row
+        .querySelector(".domain-name")
+        .textContent.toLowerCase();
+      const domainStatus = row
+        .querySelector(".domain-status")
+        .textContent.toLowerCase();
+
+      if (
+        domainName.includes(searchTerm.toLowerCase()) ||
+        domainStatus.includes(searchTerm.toLowerCase())
+      ) {
+        row.style.display = "table-row";
+        foundMatch = true;
+        matchedDomainsCount++;
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    updateFoundDomainsCount(matchedDomainsCount);
+
+    if (foundMatch) {
+      noDomainsFound.style.display = "none";
+      tableHead.style.display = "table-header-group";
+    } else {
+      noDomainsFound.style.display = "block";
+      tableHead.style.display = "none";
+    }
+  }
+
+  const searchInput = document.getElementById("searchInput");
+
+  searchInput.addEventListener("input", function () {
+    const searchTerm = this.value;
+    filterDomains(searchTerm);
+  });
+</script>
+{% endblock %}

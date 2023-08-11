@@ -131,7 +131,7 @@ func (h *handlerV1) HandleCheckDomains(c *fiber.Ctx) error {
 
 // TODO: handle rendering domain info page!
 func (h *handlerV1) HandleDomainInfoShowPage(c *fiber.Ctx) error {
-	id := c.Params("id","")
+	id := c.Params("id", "")
 
 	return c.Send([]byte("You are here " + id))
 }

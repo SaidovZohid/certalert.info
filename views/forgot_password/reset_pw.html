@@ -1,0 +1,189 @@
+{% extends "partials/base.html" %} {% block content %}
+<div class="flex justify-center items-center h-screen font-medium">
+  <!-- component -->
+  <body class="antialiased bg-white">
+    <div
+      class="w-full max-w-lg bg-gray-200 p-8 rounded-xl shadow shadow-slate-300"
+    >
+      <h1 class="text-4xl">Reset password</h1>
+      <p class="text-slate-500">Enter your new password</p>
+      <form
+        action="/forgot-password/update?token={{key_prvd_by_rst_link}}"
+        method="post"
+        class="my-10"
+        onsubmit="return submitForm()"
+      >
+        <div class="flex flex-col space-y-5">
+          <label for="password">
+            <p class="text-slate-700 pb-2">New Password</p>
+            <div class="relative">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow"
+                placeholder="Enter new password"
+              />
+              <span
+                onclick="togglePasswordVisibility('password')"
+                class="absolute right-4 top-4 cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6"
+                  id="eyeIcon1"
+                >
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path
+                    d="M2 9a8.98 8.98 0 0011 8.77M21 9a8.98 8.98 0 01-11 8.77"
+                  ></path>
+                </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 hidden"
+                  id="eyeIcon2"
+                >
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </span>
+            </div>
+          </label>
+          <div
+            class="flex items-center p-4 mt-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800 hidden"
+            id="passwordError"
+            role="alert"
+          >
+            <svg
+              class="flex-shrink-0 inline w-4 h-4 mr-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+              />
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>Passwords did not match</div>
+          </div>
+          <label for="confirmPassword">
+            <p class="text-slate-700 pb-2">Confirm Password</p>
+            <div class="relative">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow"
+                placeholder="Confirm new password"
+              />
+              <span
+                onclick="togglePasswordVisibility('confirmPassword')"
+                class="absolute right-4 top-4 cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6"
+                  id="eyeIcon3"
+                >
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path
+                    d="M2 9a8.98 8.98 0 0011 8.77M21 9a8.98 8.98 0 01-11 8.77"
+                  ></path>
+                </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 hidden"
+                  id="eyeIcon4"
+                >
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </span>
+            </div>
+          </label>
+          <button
+            type="submit"
+            class="w-full py-3 text-white bg-blue-600 hover:bg-blue-500 rounded-lg border-blue-500 hover:shadow inline-flex space-x-2 items-center justify-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <!-- SVG path here -->
+            </svg>
+
+            <span>Reset Password</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</div>
+
+<script>
+  function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const eyeIcon1 = document.getElementById("eyeIcon1");
+    const eyeIcon2 = document.getElementById("eyeIcon2");
+    const eyeIcon3 = document.getElementById("eyeIcon3");
+    const eyeIcon4 = document.getElementById("eyeIcon4");
+
+    if (input.type === "password") {
+      input.type = "text";
+      if (inputId === "password") {
+        eyeIcon1.classList.add("hidden");
+        eyeIcon2.classList.remove("hidden");
+      } else if (inputId === "confirmPassword") {
+        eyeIcon3.classList.add("hidden");
+        eyeIcon4.classList.remove("hidden");
+      }
+    } else {
+      input.type = "password";
+      if (inputId === "password") {
+        eyeIcon1.classList.remove("hidden");
+        eyeIcon2.classList.add("hidden");
+      } else if (inputId === "confirmPassword") {
+        eyeIcon3.classList.remove("hidden");
+        eyeIcon4.classList.add("hidden");
+      }
+    }
+  }
+
+  function submitForm() {
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const passwordError = document.getElementById("passwordError");
+
+    if (password !== confirmPassword) {
+      passwordError.classList.remove("hidden");
+      return false;
+    }
+
+    // If the passwords match, you can proceed with the API request or form submission here.
+    // For demonstration purposes, I'll simply log a message here.
+    console.log("Password reset request submitted successfully!");
+    return true;
+  }
+</script>
+
+{% endblock %}

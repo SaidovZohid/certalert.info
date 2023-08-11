@@ -69,7 +69,7 @@ func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 			To:   []string{req.Email},
 			Type: email.VerificationEmail,
 			Body: map[string]string{
-				"link": h.cfg.BaseUrl + "/signup/verify?token=" + token,
+				"link": h.cfg.BaseUrl + "/signup/options?token=" + token,
 				"name": req.Fullname,
 			},
 			Subject: "Verification code to " + req.Fullname,
@@ -92,7 +92,7 @@ func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 		})
 	}
 
-	err = h.inMemory.Set("user_"+req.Email, string(userData), time.Minute*15)
+	err = h.inMemory.Set("user_"+req.Email, string(userData), h.cfg.SignUPLinkTokenTime)
 	if err != nil {
 		h.log.Error(err)
 		return c.Render("signup/index", fiber.Map{
@@ -141,7 +141,7 @@ func (h *handlerV1) HandleVerifyUserSignUp(c *fiber.Ctx) error {
 		return errors.New("try again, something went wrong")
 	}
 
-	return c.SendString("Succcessfully verified now you can log in with your verified email address and password! Link -> " + h.cfg.BaseUrl + "/login")
+	return c.Redirect("/login")
 }
 
 // handles login page rendering

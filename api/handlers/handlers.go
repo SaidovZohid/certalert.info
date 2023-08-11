@@ -29,6 +29,7 @@ type handlerV1 struct {
 	log      logger.Logger
 	strg     storage.StorageI
 	inMemory storage.InMemoryStorageI
+	tokens   map[string]string
 }
 
 type HandlerV1Options struct {
@@ -36,6 +37,7 @@ type HandlerV1Options struct {
 	Log      logger.Logger
 	Strg     storage.StorageI
 	InMemory storage.InMemoryStorageI
+	Tokens   map[string]string
 }
 
 func New(options *HandlerV1Options) *handlerV1 {
@@ -44,6 +46,7 @@ func New(options *HandlerV1Options) *handlerV1 {
 		log:      options.Log,
 		strg:     options.Strg,
 		inMemory: options.InMemory,
+		tokens:   options.Tokens,
 	}
 }
 

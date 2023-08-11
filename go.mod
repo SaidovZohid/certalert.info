@@ -15,7 +15,6 @@ require (
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
-	github.com/sujit-baniya/flash v0.1.8
 	golang.org/x/crypto v0.9.0
 	golang.org/x/oauth2 v0.7.0
 )

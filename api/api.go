@@ -34,8 +34,8 @@ func New(opt *RoutetOptions) *fiber.App {
 		Views:                   engine,
 		EnableTrustedProxyCheck: true,
 		PassLocalsToViews:       true,
-		WriteTimeout:            10 * time.Minute,
-		ErrorHandler:            HandleError,
+		// WriteTimeout:            10 * time.Minute,
+		ErrorHandler: HandleError,
 	})
 
 	// Redirect invalid API requests to the main URL
@@ -124,6 +124,7 @@ func New(opt *RoutetOptions) *fiber.App {
 		Log:      opt.Log,
 		Strg:     opt.Strg,
 		InMemory: opt.InMemory,
+		Tokens:   make(map[string]string, 0),
 	})
 
 	app.Get("/", handlers.HandleGetLandingPage)
@@ -137,17 +138,23 @@ func New(opt *RoutetOptions) *fiber.App {
 	// signup
 	app.Get("/signup", handlers.SimpleAuthMiddleware, handlers.HandleGetSignUpPage)
 	app.Post("/signup/user", handlers.SimpleAuthMiddleware, handlers.HandeSignupUser)
-	app.Get("/signup/verify", handlers.SimpleAuthMiddleware, handlers.HandleVerifyUserSignUp)
+	app.Get("/signup/options", handlers.SimpleAuthMiddleware, handlers.HandleVerifyUserSignUp)
 
 	// login
-	app.Post("/login/user", handlers.SimpleAuthMiddleware, handlers.HandeLoginUser)
+	app.Post("/login", handlers.SimpleAuthMiddleware, handlers.HandeLoginUser)
 	app.Get("/login", handlers.SimpleAuthMiddleware, handlers.HandleGetLoginPage)
 
 	// google login
 	app.Get("/login/google", handlers.SimpleAuthMiddleware, handlers.HandleGoogleAuth)
 	app.Get("/login/google/callback", handlers.SimpleAuthMiddleware, handlers.HandleGoogleCallback)
 
-	app.Get("/logout", handlers.HandleLogout)
+	app.Get("/logout", handlers.AuthMiddleware, handlers.HandleLogout)
+
+	app.Get("/forgot-password", handlers.SimpleAuthMiddleware, handlers.HandleForgotPasswordPage)
+	// TODO: write the handler of reset link checker
+	app.Get("/forgot-password/options", handlers.SimpleAuthMiddleware, handlers.HandleForgotPasswordVerify)
+	app.Post("/forgot-password", handlers.SimpleAuthMiddleware, handlers.HandleForgotPassword)
+	app.Post("/forgot-password/update", handlers.SimpleAuthMiddleware, handlers.HandleForgotPasswordUpdate)
 
 	app.Get("/domains", handlers.AuthMiddleware, handlers.HandleDomainsPage)
 	app.Post("/domains/add/new", handlers.AuthMiddleware, handlers.AddNewDomains)

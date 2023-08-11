@@ -88,3 +88,10 @@ func (d *userRepo) UpdateUserLastPoll(ctx context.Context, userID int64) error {
 	_, err := d.db.Exec(query, userID)
 	return err
 }
+
+func (d *userRepo) UpdateUserPassword(ctx context.Context, userID int64, newPassword string) error {
+	query := `UPDATE users SET password = $1 WHERE id = $2`
+
+	_, err := d.db.Exec(query, newPassword, userID)
+	return err
+}

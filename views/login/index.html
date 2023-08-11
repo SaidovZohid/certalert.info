@@ -3,17 +3,28 @@
   <div
     class="flex flex-col justify-center items-center w-full h-full font-bold"
   >
-    <form
-      action="/login/user"
-      method="post"
-      class="w-[500px] flex flex-col"
-    >
+    <form action="/login" method="post" class="w-[500px] flex flex-col bg-gray-200 p-10 border-b-gray-200 rounded-xl shadow shadow-slate-300">
       <h1 class="mb-4 text-xl text-gray-900 text-center">
         Welcome Back to CertAlert!
       </h1>
       {% if error %}
-      <div class="w-[500px] flex justify-center bg-red-500 mb-4 rounded-lg p-2">
-        <h4 class="text-white">{{error}}</h4>
+      <div
+        class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800 font-medium"
+        role="alert"
+      >
+        <svg
+          class="flex-shrink-0 inline w-4 h-4 mr-3"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+          />
+        </svg>
+        <span class="sr-only">Info</span>
+        <div>{{error}}</div>
       </div>
       {% endif %}
       <div class="mb-6">
@@ -71,7 +82,7 @@
           >Sign up</a
         >
         <a
-          href=""
+          href="/forgot-password"
           class="underline hover:no-underline hover:text-blue-600 transition-colors"
           >Forgot your password?</a
         >

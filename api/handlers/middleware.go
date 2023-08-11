@@ -5,7 +5,6 @@ import (
 
 	"github.com/SaidovZohid/certalert.info/pkg/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/sujit-baniya/flash"
 )
 
 // func uses h.getAuth and if payload is nil redirect to login page if not just skip to another
@@ -51,7 +50,7 @@ func (h *handlerV1) getAuth(c *fiber.Ctx) (*utils.Payload, string) {
 }
 
 func WithFlash(c *fiber.Ctx) error {
-	values := flash.Get(c)
+	values := utils.GetFlash(c)
 	c.Locals("flash", values)
 	return c.Next()
 }

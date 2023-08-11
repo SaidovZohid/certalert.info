@@ -3,11 +3,11 @@
   <div
     class="flex flex-col justify-center items-center w-full h-full font-bold"
   >
-    <form action="/signup/user" method="post" class="w-[500px] flex flex-col">
+    <form action="/signup/user" method="post" class="w-[500px] flex flex-col bg-gray-200 p-10 border-b-gray-200 rounded-xl shadow shadow-slate-300">
       <h1 class="font-bold mb-4 text-xl text-gray-900 text-center">
         Create your <span class="text-blue-500">FREE</span> account.
       </h1>
-      {% if flash.enterFullname %}
+      {% if error %}
       <div
         class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
         role="alert"
@@ -24,7 +24,7 @@
           />
         </svg>
         <span class="sr-only">Info</span>
-        <div>{{flash.enterFullname}}</div>
+        <div>{{error}}</div>
       </div>
       {% endif %}
       <div class="mb-6">

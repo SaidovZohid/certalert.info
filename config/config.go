@@ -10,16 +10,17 @@ import (
 )
 
 type Config struct {
-	HttpPort                string
-	BaseUrl                 string
-	JwtAccessTokenSecretKey string
-	AuthCookieNameCertAlert string
-	Redis                   string
-	LocationInfoKey         string
-	SignUPLinkTokenTime     time.Duration
-	Postgres                Postgres
-	Google                  Google
-	Smtp                    Smtp
+	HttpPort                    string
+	BaseUrl                     string
+	JwtAccessTokenSecretKey     string
+	AuthCookieNameCertAlert     string
+	Redis                       string
+	LocationInfoKey             string
+	SignUPLinkTokenTime         time.Duration
+	ForgotPasswordLinkTokenTime time.Duration
+	Postgres                    Postgres
+	Google                      Google
+	Smtp                        Smtp
 }
 
 type Smtp struct {
@@ -46,13 +47,14 @@ func Load() Config {
 	conf.AutomaticEnv()
 
 	return Config{
-		HttpPort:                conf.GetString("HTTP_PORT"),
-		BaseUrl:                 conf.GetString("BASE_URL"),
-		JwtAccessTokenSecretKey: conf.GetString("JWT_ACCESS_TOKEN_SECRET_KEY"),
-		AuthCookieNameCertAlert: conf.GetString("AUTH_COOKIE_NAME_CERTALERT"),
-		SignUPLinkTokenTime:     conf.GetDuration("SIGNUP_TOKEN_LINK_DURATION"),
-		Redis:                   conf.GetString("REDIS_ADDR"),
-		LocationInfoKey:         conf.GetString("LOCATION_INFO_KEY"),
+		HttpPort:                    conf.GetString("HTTP_PORT"),
+		BaseUrl:                     conf.GetString("BASE_URL"),
+		JwtAccessTokenSecretKey:     conf.GetString("JWT_ACCESS_TOKEN_SECRET_KEY"),
+		AuthCookieNameCertAlert:     conf.GetString("AUTH_COOKIE_NAME_CERTALERT"),
+		SignUPLinkTokenTime:         conf.GetDuration("SIGNUP_TOKEN_LINK_DURATION"),
+		ForgotPasswordLinkTokenTime: conf.GetDuration("FORGOT_PASSWORD_TOKEN_LINK_DURATION"),
+		Redis:                       conf.GetString("REDIS_ADDR"),
+		LocationInfoKey:             conf.GetString("LOCATION_INFO_KEY"),
 		Postgres: Postgres{
 			Host:     conf.GetString("POSTGRES_HOST"),
 			Port:     conf.GetString("POSTGRES_PORT"),

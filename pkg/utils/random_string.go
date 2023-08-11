@@ -9,7 +9,7 @@ const (
 	letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
 )
 
-func GenerateRandomPassword(length int) string {
+func GenerateRandomString(length int) string {
 	link := make([]byte, length)
 	letterLen := big.NewInt(int64(len(letterBytes)))
 

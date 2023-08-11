@@ -12,6 +12,12 @@ tidy:
 	@go mod tidy
 	@go mod vendor
 
+# this builds for server. before building golang project export ENV
+# export GOOS=linux
+# export GOARCH=amd64
+build:
+	@go build -o ./bin/main ./cmd/main.go
+
 # database migrations
 # 
 # create migration name=users
@@ -47,12 +53,3 @@ cache:
 # run test
 test:
 	@go test -v -cover ./...
-#
-# docker
-# up containers
-up:
-	docker compose --env-file ./.env.docker up 
-#
-# down containers
-down:
-	docker compose down

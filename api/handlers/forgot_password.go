@@ -16,7 +16,7 @@ func (h *handlerV1) HandleForgotPasswordPage(c *fiber.Ctx) error {
 }
 
 func (h *handlerV1) HandleForgotPassword(c *fiber.Ctx) error {
-	var req apiModels	.ForgotPasswordReq
+	var req apiModels.ForgotPasswordReq
 	if err := c.BodyParser(&req); err != nil {
 		return err
 	}

@@ -25,29 +25,38 @@ import (
 )
 
 type handlerV1 struct {
-	cfg      *config.Config
-	log      logger.Logger
-	strg     storage.StorageI
-	inMemory storage.InMemoryStorageI
-	tokens   map[string]string
+	cfg                   *config.Config
+	log                   logger.Logger
+	strg                  storage.StorageI
+	inMemory              storage.InMemoryStorageI
+	tokens                map[string]TokenDataValidAndToken
+	forgotPasswordUserReq map[string]string
 }
 
 type HandlerV1Options struct {
-	Cfg      *config.Config
-	Log      logger.Logger
-	Strg     storage.StorageI
-	InMemory storage.InMemoryStorageI
-	Tokens   map[string]string
+	Cfg                   *config.Config
+	Log                   logger.Logger
+	Strg                  storage.StorageI
+	InMemory              storage.InMemoryStorageI
+	Tokens                map[string]TokenDataValidAndToken
+	ForgotPasswordUserReq map[string]string
 }
 
 func New(options *HandlerV1Options) *handlerV1 {
 	return &handlerV1{
-		cfg:      options.Cfg,
-		log:      options.Log,
-		strg:     options.Strg,
-		inMemory: options.InMemory,
-		tokens:   options.Tokens,
+		cfg:                   options.Cfg,
+		log:                   options.Log,
+		strg:                  options.Strg,
+		inMemory:              options.InMemory,
+		tokens:                options.Tokens,
+		forgotPasswordUserReq: options.ForgotPasswordUserReq,
 	}
+}
+
+type TokenDataValidAndToken struct {
+	Token     string
+	Email     string
+	ExpiresAt time.Time
 }
 
 type User struct {

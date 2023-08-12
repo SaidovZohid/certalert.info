@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/SaidovZohid/certalert.info/api/handlers"
 	h "github.com/SaidovZohid/certalert.info/api/handlers"
 	"github.com/SaidovZohid/certalert.info/config"
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
@@ -120,11 +121,12 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Static("/static", "./static")
 
 	handlers := h.New(&h.HandlerV1Options{
-		Cfg:      opt.Cfg,
-		Log:      opt.Log,
-		Strg:     opt.Strg,
-		InMemory: opt.InMemory,
-		Tokens:   make(map[string]string, 0),
+		Cfg:                   opt.Cfg,
+		Log:                   opt.Log,
+		Strg:                  opt.Strg,
+		InMemory:              opt.InMemory,
+		Tokens:                make(map[string]handlers.TokenDataValidAndToken, 0),
+		ForgotPasswordUserReq: make(map[string]string, 0),
 	})
 
 	app.Get("/", handlers.HandleGetLandingPage)

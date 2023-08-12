@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	apiModels "github.com/SaidovZohid/certalert.info/api/models"
 	"github.com/SaidovZohid/certalert.info/pkg/email"
@@ -31,10 +32,10 @@ func (h *handlerV1) HandleForgotPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	val, err := h.inMemory.Get("user_forgot_password_" + req.Email)
-	if err == nil && val != "" {
+	_, isOK := h.forgotPasswordUserReq[req.Email]
+	if isOK {
 		return c.Render("forgot_password/reset_pw_link", fiber.Map{
-			"error": "Remember, we've already sent you the password reset link. It remains valid for 5 minutes.",
+			"error": "Remember, we've already sent you the password reset link. It remains valid for 15 minutes.",
 		})
 	}
 
@@ -56,7 +57,12 @@ func (h *handlerV1) HandleForgotPassword(c *fiber.Ctx) error {
 		tokenKey = utils.GenerateRandomString(12)
 		_, ok = h.tokens[tokenKey]
 	}
-	h.tokens[tokenKey] = token
+	h.forgotPasswordUserReq[req.Email] = tokenKey
+	h.tokens[tokenKey] = TokenDataValidAndToken{
+		Token:     token,
+		Email:     req.Email,
+		ExpiresAt: time.Now().Add(h.cfg.ForgotPasswordLinkTokenTime),
+	}
 
 	fullname := user.FirstName + " " + user.LastName
 	go func() {
@@ -84,12 +90,18 @@ func (h *handlerV1) HandleForgotPasswordVerify(c *fiber.Ctx) error {
 		return c.Redirect("/")
 	}
 
-	token, ok := h.tokens[tokenKey]
+	data, ok := h.tokens[tokenKey]
 	if !ok {
 		return c.Redirect("/")
 	}
 
-	payload, err := utils.VerifyToken(h.cfg, token)
+	if time.Now().After(data.ExpiresAt) {
+		delete(h.tokens, tokenKey)
+		delete(h.forgotPasswordUserReq, data.Email)
+		return errors.New("token is invalid")
+	}
+
+	payload, err := utils.VerifyToken(h.cfg, data.Token)
 	if err != nil {
 		return errors.New("token is invalid")
 	}
@@ -113,15 +125,22 @@ func (h *handlerV1) HandleForgotPasswordUpdate(c *fiber.Ctx) error {
 
 	var req apiModels.UpdatePasswordReq
 	if err := c.BodyParser(&req); err != nil {
+		h.log.Error(err)
 		return errors.New("request body is not acceptable")
 	}
 
-	token, ok := h.tokens[tokenKey]
+	data, ok := h.tokens[tokenKey]
 	if !ok {
 		return c.Redirect("/")
 	}
 
-	payload, err := utils.VerifyToken(h.cfg, token)
+	if time.Now().After(data.ExpiresAt) {
+		delete(h.tokens, tokenKey)
+		delete(h.forgotPasswordUserReq, data.Email)
+		return errors.New("token is invalid")
+	}
+
+	payload, err := utils.VerifyToken(h.cfg, data.Token)
 	if err != nil {
 		h.log.Error(err)
 		return errors.New("token is invalid")

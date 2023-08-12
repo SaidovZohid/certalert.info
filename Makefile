@@ -16,7 +16,7 @@ tidy:
 # export GOOS=linux
 # export GOARCH=amd64
 build:
-	@go build -o ./bin/main ./cmd/main.go $(GOOS=linux) $(GOARCH=amd64)
+	GOOS=linux GOARCH=amd64 go build -o ./bin/main ./cmd/main.go
 
 # database migrations
 # 

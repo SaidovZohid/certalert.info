@@ -1,4 +1,4 @@
-[ ] write the frontend page of forget password and logic in backend
-[ ] Add SQL Injection Checker and Transaction
-
-[v] Write the big logic of getting ssl certificate info. Using goroutines, channels and waitgroup
+[v] Make an Add Domains page returning error when user fills the input wrong! And add for new users can track only 5 domains. After that they should contact to support and upgrade the tracking domains size from 5.
+[ ] Add domain info page to get the required info about domain ssl certificate
+[ ] Add account page to change the fullname, email and password. Add delete account button to fully delete the account from records.
+[ ] write github workflow CI/CD

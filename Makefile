@@ -53,3 +53,7 @@ cache:
 # run test
 test:
 	@go test -v -cover ./...
+
+push:
+	docker build --platform linux/amd64 -t zohiddev/certalert:latest .
+	docker image push zohiddev/certalert:latest

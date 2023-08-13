@@ -139,7 +139,7 @@ func New(opt *RoutetOptions) *fiber.App {
 
 	// signup
 	app.Get("/signup", handlers.SimpleAuthMiddleware, handlers.HandleGetSignUpPage)
-	app.Post("/signup/user", handlers.SimpleAuthMiddleware, handlers.HandeSignupUser)
+	app.Post("/signup", handlers.SimpleAuthMiddleware, handlers.HandeSignupUser)
 	app.Get("/signup/options", handlers.SimpleAuthMiddleware, handlers.HandleVerifyUserSignUp)
 
 	// login
@@ -153,7 +153,6 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Get("/logout", handlers.AuthMiddleware, handlers.HandleLogout)
 
 	app.Get("/forgot-password", handlers.SimpleAuthMiddleware, handlers.HandleForgotPasswordPage)
-	// TODO: write the handler of reset link checker
 	app.Get("/forgot-password/options", handlers.SimpleAuthMiddleware, handlers.HandleForgotPasswordVerify)
 	app.Post("/forgot-password", handlers.SimpleAuthMiddleware, handlers.HandleForgotPassword)
 	app.Post("/forgot-password/update", handlers.SimpleAuthMiddleware, handlers.HandleForgotPasswordUpdate)
@@ -164,6 +163,10 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Delete("/domains/stop", handlers.AuthMiddleware, handlers.HandleStopMonitoring)
 	app.Get("/domains/check", handlers.AuthMiddleware, handlers.HandleCheckDomains)
 	app.Get("/domains/more/:id", handlers.AuthMiddleware, handlers.HandleDomainInfoShowPage)
+
+	app.Use(func(c *fiber.Ctx) error {
+		return c.Render("404/index", nil)
+	})
 
 	return app
 }

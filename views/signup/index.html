@@ -1,104 +1,148 @@
 {% extends "partials/base.html" %} {% block content %}
-<body>
+<section>
   <div
-    class="flex flex-col justify-center items-center w-full h-full font-bold"
+    class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0"
   >
-    <form action="/signup/user" method="post" class="w-[500px] flex flex-col bg-gray-200 p-10 border-b-gray-200 rounded-xl shadow shadow-slate-300">
-      <h1 class="font-bold mb-4 text-xl text-gray-900 text-center">
-        Create your <span class="text-blue-500">FREE</span> account.
-      </h1>
-      {% if error %}
-      <div
-        class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
-        role="alert"
-      >
-        <svg
-          class="flex-shrink-0 inline w-4 h-4 mr-3"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 20 20"
+    <a
+      href="/"
+      class="flex items-center mb-6 text-2xl font-semibold text-gray-900"
+    >
+      <img class="w-8 h-8 mr-2" src="../../static/logo.png" alt="logo" />
+      CertAlert
+    </a>
+    <div
+      class="w-full rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 bg-gray-200 dark:border-gray-700"
+    >
+      <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+        <h1
+          class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-center"
         >
-          <path
-            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-          />
-        </svg>
-        <span class="sr-only">Info</span>
-        <div>{{error}}</div>
-      </div>
-      {% endif %}
-      <div class="mb-6">
-        <label
-          for="name"
-          class="block mb-2 text-sm font-medium text-white dark:text-black"
-          >Your full name</label
-        >
-        <input
-          type="name"
-          name="fullname"
-          id="name"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="e.g John Doe"
-          required
-        />
-      </div>
-      <div class="mb-6">
-        <label
-          for="email"
-          class="block mb-2 text-sm font-medium text-white dark:text-black"
-          >Your e-mail</label
-        >
-        <input
-          type="email"
-          name="email"
-          id="email"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="e.g info@example.com"
-          required
-        />
-      </div>
-      <div class="mb-6">
-        <label
-          for="password"
-          class="block mb-2 text-sm font-medium text-gray-900"
-          >Your password</label
-        >
-        <input
-          name="password"
-          type="password"
-          id="password"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          required
-          placeholder="password"
-        />
-      </div>
-      <button
-        type="submit"
-        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-      >
-        Sign up
-      </button>
-      <a
-        href="/login/google"
-        class="py-2 px-4 flex items-center justify-center bg-black mt-4 text-center text-white w-full font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-opacity-75 cursor-pointer"
-      >
-        <img
-          width="30px"
-          class="mr-1"
-          src="../../static/google.svg"
-          alt="gogle"
-        />
-        Sign up with Google
-      </a>
-      <div class="flex justify-center mt-4 text-black">
-        <p>Already a member?</p>
+          Create your <span class="text-blue-600">Free</span> Account
+        </h1>
         <a
-          href="/login"
-          class="underline hover:no-underline hover:text-blue-600 transition-colors ml-2"
-          >Sign in</a
+          href="/login/google"
+          class="bg-gray-800 px-4 py-2 border flex gap-2 rounded-lg text-white hover:shadow transition duration-150 justify-center items-center hover:bg-gray-950"
         >
+          <img
+            class="w-6 h-6 mr-2"
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            loading="lazy"
+            alt="google logo"
+          />
+          <span>Continue with Google</span>
+        </a>
+        <div class="flex items-center justify-center">
+          <hr class="flex-grow border-t-2 border-gray-400" />
+          <span class="mx-2 text-sm text-gray-600">or</span>
+          <hr class="flex-grow border-t-2 border-gray-400" />
+        </div>
+        {% if error %}
+        <div
+          class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
+          role="alert"
+        >
+          <svg
+            class="flex-shrink-0 inline w-4 h-4 mr-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+            />
+          </svg>
+          <span class="sr-only">Info</span>
+          <div>{{error}}</div>
+        </div>
+        {% endif %}
+        <form class="space-y-4 md:space-y-6" action="/signup" method="post">
+          <div>
+            <label
+              for="email"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Your full name</label
+            >
+            <input
+              type="name"
+              name="fullname"
+              id="name"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              placeholder="John Doe"
+              required=""
+            />
+          </div>
+          <div>
+            <label
+              for="email"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Your email</label
+            >
+            <input
+              type="email"
+              name="email"
+              id="email"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              placeholder="name@company.com"
+              required=""
+            />
+          </div>
+          <div>
+            <label
+              for="password"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Password</label
+            >
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="••••••••"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required=""
+            />
+          </div>
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input
+                id="terms"
+                aria-describedby="terms"
+                type="checkbox"
+                class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
+                required=""
+                name="checkbox"
+              />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="terms" class="font-light text-gray-900"
+                >I accept the
+                <a
+                  class="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                  href="/termss"
+                  >Terms and Conditions</a
+                ></label
+              >
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+          >
+            Sign up
+          </button>
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-light text-gray-900">
+              Already have an account?
+              <a
+                href="/login"
+                class="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                >Sign in</a
+              >
+            </p>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
-</body>
+</section>
 {% endblock %}

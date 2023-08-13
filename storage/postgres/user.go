@@ -26,8 +26,9 @@ func (u *userRepo) CreateUser(ctx context.Context, user *models.User) (*models.U
 			first_name,
 			last_name,
 			email,
-			password
-		) VALUES ($1, $2, $3, $4)
+			password,
+			user_accepted_terms
+		) VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at
 	`
 	err := u.db.QueryRow(
@@ -36,6 +37,7 @@ func (u *userRepo) CreateUser(ctx context.Context, user *models.User) (*models.U
 		user.LastName,
 		user.Email,
 		user.Password,
+		user.UserAcceptedTerms,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,
@@ -60,6 +62,7 @@ func (u *userRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 			email,
 			password,
 			domains_last_check,
+			max_domains_tracking,
 			created_at
 		FROM users WHERE email = $1
 	`
@@ -73,6 +76,7 @@ func (u *userRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 		&result.Email,
 		&result.Password,
 		&result.LastPollAt,
+		&result.MaxDomainsTracking,
 		&result.CreatedAt,
 	)
 	if err != nil {
@@ -84,6 +88,13 @@ func (u *userRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 
 func (d *userRepo) UpdateUserLastPoll(ctx context.Context, userID int64) error {
 	query := `UPDATE users SET domains_last_check = CURRENT_TIMESTAMP WHERE id = $1`
+
+	_, err := d.db.Exec(query, userID)
+	return err
+}
+
+func (d *userRepo) UpdateUserLastPollToNULL(ctx context.Context, userID int64) error {
+	query := `UPDATE users SET domains_last_check = NULL WHERE id = $1`
 
 	_, err := d.db.Exec(query, userID)
 	return err

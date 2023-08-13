@@ -30,6 +30,12 @@ func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 		})
 	}
 
+	if req.Checkbox != "on" {
+		return c.Render("signup/index", fiber.Map{
+			"error": "You should agree to our terms and conditions to continue to use our application!",
+		})
+	}
+
 	splitedName := strings.Split(req.Fullname, " ")
 	if len(splitedName) > 2 || len(splitedName) < 2 {
 		return c.Render("signup/index", fiber.Map{
@@ -79,10 +85,11 @@ func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 	}()
 
 	redisUser := &apiModels.UserRedis{
-		FirstName: splitedName[0],
-		LastName:  splitedName[1],
-		Email:     req.Email,
-		Password:  password,
+		FirstName:         splitedName[0],
+		LastName:          splitedName[1],
+		Email:             req.Email,
+		Password:          password,
+		IsUserAgreeeTerms: true,
 	}
 	userData, err := json.Marshal(redisUser)
 	if err != nil {
@@ -131,10 +138,11 @@ func (h *handlerV1) HandleVerifyUserSignUp(c *fiber.Ctx) error {
 	}
 
 	_, err = h.strg.User().CreateUser(context.Background(), &models.User{
-		FirstName: userNotVerified.FirstName,
-		LastName:  userNotVerified.LastName,
-		Email:     userNotVerified.Email,
-		Password:  userNotVerified.Password,
+		FirstName:         userNotVerified.FirstName,
+		LastName:          userNotVerified.LastName,
+		Email:             userNotVerified.Email,
+		Password:          userNotVerified.Password,
+		UserAcceptedTerms: &userNotVerified.IsUserAgreeeTerms,
 	})
 	if err != nil {
 		h.log.Error(err)
@@ -225,11 +233,13 @@ func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 			h.log.Error(err)
 			return errors.New("something went unexpected")
 		}
+		userAccepted := true
 		userCreated, err := h.strg.User().CreateUser(context.Background(), &models.User{
-			FirstName: data.FirstName,
-			LastName:  data.LastName,
-			Email:     data.Email,
-			Password:  randomPassword,
+			FirstName:         data.FirstName,
+			LastName:          data.LastName,
+			Email:             data.Email,
+			Password:          randomPassword,
+			UserAcceptedTerms: &userAccepted,
 		})
 		if err != nil {
 			return errors.New("failed to create new user")

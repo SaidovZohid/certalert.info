@@ -1,38 +1,65 @@
-{% extends "partials/base.html" %} 
-{% block content %} 
-{% include "partials/header.html"%}
+{% extends "partials/base.html" %} {% block content %} {% include "partials/header.html"%}
 
 <div class="flex w-full max-w-[1250px] mx-auto">
-  <aside
-    class="min-h-screen w-[20%] text-gray-600 px-4 pt-8"
-  >
+  <aside class="min-h-screen w-[20%] text-gray-600 px-4 pt-8">
     <a
       href="/domains"
       class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img width="19" height="19" src="./../../static/world.svg" alt="globe--v1" class="mr-2"/>Domains</a
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/world.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Domains</a
     >
     <a
       href="#menu-item-3"
       class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img width="19" height="19" src="./../../static/user.svg" alt="globe--v1" class="mr-2"/>Account</a
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/user.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Account</a
     >
     <a
       href="#menu-item-4"
       class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img width="19" height="19" src="./../../static/telegram.svg" alt="globe--v1" class="mr-2"/>Notifications</a
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/telegram.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Notifications</a
     >
     <a
       href="#menu-item-5"
       class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img width="19" height="19" src="./../../static/integration.svg" alt="globe--v1" class="mr-2"/>Integrations</a
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/integration.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Integrations</a
     >
     <a
       href="/logout"
       class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img width="20" height="20" src="./../../static/sign-out.svg" alt="globe--v1" class="mr-2"/>Sign out</a
+      ><img
+        width="20"
+        height="20"
+        src="./../../static/sign-out.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Sign out</a
     >
   </aside>
-  <main class="w-full h-screen bg-white"> <!-- Changed background color -->
+  <main class="w-full h-screen bg-white">
+    <!-- Changed background color -->
     <form
       action="/domains/add/new"
       method="post"
@@ -43,14 +70,58 @@
         <p class="font-medium">
           Add one or more domains, separated by spaces, that you want to track.
         </p>
+        {% if flash.maxTrackingDomainsExited %}
+        <div
+          class="flex items-center p-4 my-4 text-sm text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800 font-medium"
+          role="alert"
+        >
+          <svg
+            class="flex-shrink-0 inline w-4 h-4 mr-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+            />
+          </svg>
+          <span class="sr-only">Info</span>
+          <div>{{flash.maxTrackingDomainsExited}}</div>
+        </div>
+        {% endif %} {% if flash.error %}
+        <div
+          class="flex items-center p-4 my-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800 font-medium"
+          role="alert"
+        >
+          <svg
+            class="flex-shrink-0 inline w-4 h-4 mr-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+            />
+          </svg>
+          <span class="sr-only">Info</span>
+          <div>{{flash.error}}</div>
+        </div>
+        {% endif %}
         <div>
           <textarea
             name="domains"
-            class="w-[700px] mt-2 h-[200px] bg-[#E5E7EB] border p-2 focus:border-collapse resize-none rounded-md block mb-4 placeholder:text-gray-600" 
+            class="w-[700px] mt-2 h-[200px] bg-[#E5E7EB] border p-2 focus:border-collapse resize-none rounded-md block mb-4 placeholder:text-gray-600"
             placeholder="certalert.info zohiddev.me"
             required
-          ></textarea>
-          <button type="submit" class="bg-blue-500 hover:bg-blue-600 p-2 rounded-md text-white"> 
+          >
+{{flash.domains}}</textarea
+          >
+          <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-600 p-2 rounded-md text-white"
+          >
             Track domains
           </button>
         </div>

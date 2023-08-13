@@ -80,7 +80,7 @@ func (h *handlerV1) HandleForgotPassword(c *fiber.Ctx) error {
 	}()
 
 	return c.Render("forgot_password/reset_pw_link", fiber.Map{
-		"success": "Reset password link sent to email address! It remains valid for 5 minutes. Check your inbox and spam.",
+		"success": "Reset password link sent to email address! It remains valid for 15 minutes. Check your inbox and spam.",
 	})
 }
 

@@ -9,6 +9,7 @@ type SignUpReq struct {
 	Fullname string `json:"fullname" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
+	Checkbox string `json:"checkbox" binding:"required"`
 }
 
 type ForgotPasswordReq struct {

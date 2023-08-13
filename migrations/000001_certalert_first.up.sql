@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS "users" (
     "email" VARCHAR NOT NULL,
     "password" VARCHAR NOT NULL,
     "domains_last_check" TIMESTAMP,
+    "max_domains_tracking" INT,
+    "user_accepted_terms" BOOLEAN,
     "created_at" TIMESTAMP DEFAULT timezone('Asia/Tashkent', CURRENT_TIMESTAMP) NOT NULL
 );
 

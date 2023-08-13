@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"regexp"
 	"sync"
 	"time"
 
@@ -346,6 +347,18 @@ func (h *handlerV1) CheckExistingDomains(userID int64, domains []string) error {
 	}
 
 	return nil
+}
+
+func isValidDomain(domain string) bool {
+	// Use a regular expression pattern to validate the domain
+	// This pattern checks for a simple domain name format with a valid top-level domain (TLD)
+	domainPattern := `^([a-zA-Z0-9_\-]+\.)+[a-zA-Z]{2,}$`
+
+	// Compile the regular expression
+	re := regexp.MustCompile(domainPattern)
+
+	// Test if the domain matches the pattern
+	return re.MatchString(domain)
 }
 
 var htmlCode = `

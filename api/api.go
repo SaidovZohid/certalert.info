@@ -58,14 +58,14 @@ func New(opt *RoutetOptions) *fiber.App {
 	// })
 	engine.AddFunc("expires", func(tm interface{}) string {
 		if tm == nil {
-			return "Unavailable"
+			return "unavailable"
 		}
 
 		timeNow := time.Now()
 		expirationTime := tm.(*time.Time)
 
 		if timeNow.Equal(*expirationTime) {
-			return "Unavailable"
+			return "expired"
 		}
 
 		daysLeft := expirationTime.Sub(timeNow).Hours() / 24
@@ -75,11 +75,11 @@ func New(opt *RoutetOptions) *fiber.App {
 			return fmt.Sprintf("%.0f days", daysLeft)
 		}
 
-		return "Expired"
+		return "expired"
 	})
 	engine.AddFunc("issuer", func(issuer interface{}) string {
 		if issuer == nil {
-			return "Unavailable"
+			return "unavailable"
 		}
 		is := issuer.(*string)
 		return *is
@@ -99,15 +99,37 @@ func New(opt *RoutetOptions) *fiber.App {
 		case ssl.StatusExpires:
 			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-orange-600 domain-status">%v</td>`, ssl.StatusExpires)
 		}
-		return `<td class="px-4 py-2 font-bold">Unavailable</td>`
+		return `<td class="px-4 py-2 font-bold">unavailable</td>`
 	})
-	// engine.AddFunc("noDomains", func() string {
-	// 	return `<h1 class="text-black">No domains to track</h1>`
-	// })
+	engine.AddFunc("domainStatusToString", func(domainName *string) string {
+		if domainName == nil {
+			return "unavailable"
+		} else if *domainName == ssl.StatusHealthy {
+			return ssl.StatusHealthy
+		} else if *domainName == ssl.StatusExpires {
+			return ssl.StatusExpires
+		} else if *domainName == ssl.StatusExpired {
+			return ssl.StatusExpired
+		} else if *domainName == ssl.StatusInvalid {
+			return ssl.StatusInvalid
+		} else if *domainName == ssl.StatusOffline {
+			return ssl.StatusOffline
+		} else if *domainName == ssl.StatusUnResponsive {
+			return ssl.StatusUnResponsive
+		}
+		return "unavailable"
+	})
+	engine.AddFunc("timeFormat", func(tm interface{}) string {
+		if tm == nil {
+			return "unavailable"
+		}
+		timeFormated := tm.(*time.Time).Format(time.RFC1123)
+		return strings.Split(timeFormated, "+")[0]
+	})
 
 	engine.AddFunc("ipAddress", func(ip interface{}) string {
 		if ip == nil {
-			return "Unavailable"
+			return "unavailable"
 		}
 
 		ipAddr := *ip.(*string)
@@ -116,6 +138,14 @@ func New(opt *RoutetOptions) *fiber.App {
 		parts := strings.Split(ipAddr, ":")
 
 		return parts[0]
+	})
+
+	engine.AddFunc("parseExtKeyUsage", func(extKeyUsages interface{}) string {
+		if extKeyUsages == nil {
+			return "unavailable"
+		}
+
+		return *extKeyUsages.(*string)
 	})
 
 	app.Static("/static", "./static")
@@ -160,9 +190,11 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Get("/domains", handlers.AuthMiddleware, handlers.HandleDomainsPage)
 	app.Post("/domains/add/new", handlers.AuthMiddleware, handlers.AddNewDomains)
 	app.Get("/domains/add", handlers.AuthMiddleware, handlers.AddNewDomainsPage)
-	app.Delete("/domains/stop", handlers.AuthMiddleware, handlers.HandleStopMonitoring)
+	app.Delete("/domains/stop", handlers.AuthMiddleware, handlers.HandleStopMonitoringDomains)
+	app.Post("/domains/stop/:id", handlers.AuthMiddleware, handlers.HandleStopMonitoringDomain)
 	app.Get("/domains/check", handlers.AuthMiddleware, handlers.HandleCheckDomains)
 	app.Get("/domains/more/:id", handlers.AuthMiddleware, handlers.HandleDomainInfoShowPage)
+	app.Get("/domains/pem/:id", handlers.AuthMiddleware, handlers.HandleShowEncodedPEM)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Render("404/index", nil)

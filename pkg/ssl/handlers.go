@@ -8,7 +8,6 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"encoding/pem"
-	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -84,7 +83,7 @@ func keyUsageToString(usage x509.KeyUsage) *string {
 		usageStrings = append(usageStrings, "Decipher Only")
 	}
 
-	str := fmt.Sprintf("[%s]", joinStrings(usageStrings, ", "))
+	str := joinStrings(usageStrings, ", ")
 	return &str
 }
 

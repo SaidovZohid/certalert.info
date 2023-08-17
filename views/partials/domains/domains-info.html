@@ -1,0 +1,66 @@
+<div class="domain-info-section flex items-center justify-between mb-3">
+  <p class="text-base font-bold text-gray-600">Type</p>
+  {% if domain.KeyUsage %}
+  <p class="text-base font-bold text-gray-600">{{domain.KeyUsage}}</p>
+  {% else %}
+  <p class="text-base font-bold text-gray-600">unavailable</p>
+  {% endif %}
+</div>
+<hr class="hr-or-text mb-3" />
+<div class="domain-info-section flex items-center justify-between mb-3">
+  <p class="text-base font-bold text-gray-600">Issuer</p>
+  <p class="text-base font-bold text-gray-600">{{issuer(domain.Issuer)}}</p>
+</div>
+<hr class="hr-or-text mb-3" />
+<div class="domain-info-section flex items-center justify-between mb-3">
+  <p class="text-base font-bold text-gray-600">Extended usage</p>
+  <p class="text-base font-bold text-gray-600">
+    {{parseExtKeyUsage(domain.ExtKeyUsages)}}
+  </p>
+  <!-- </div> -->
+</div>
+<hr class="hr-or-text mb-3" />
+<div class="domain-info-section flex items-center justify-between mb-3">
+  <p class="text-base font-bold text-gray-600">Issued at</p>
+  <p class="text-base font-bold text-gray-600">{{timeFormat(domain.Issued)}}</p>
+</div>
+<hr class="hr-or-text mb-3" />
+<div class="domain-info-section flex items-center justify-between mb-3">
+  <p class="text-base font-bold text-gray-600">Expires at</p>
+  <p class="text-base font-bold text-gray-600">
+    {{timeFormat(domain.Expires)}}
+  </p>
+</div>
+<hr class="hr-or-text mb-3" />
+<div class="domain-info-section flex items-center justify-between mb-3">
+  <p class="text-base font-bold text-gray-600">Latency</p>
+  {% if domain.Latency %}
+  <p class="text-base font-bold text-gray-600">{{domain.Latency}} ms</p>
+  {% else %}
+  <p class="text-base font-bold text-gray-600">unavailable</p>
+  {% endif %}
+</div>
+<hr class="hr-or-text mb-3" />
+<div class="domain-info-section flex items-center justify-between mb-3">
+  <p class="text-base font-bold text-gray-600">Encoded PEM</p>
+  <a
+    href="/domains/pem/{{domain.ID}}"
+    target="_blank"
+    class="text-base bg-slate-600 text-white px-2 py-1 rounded-md font-medium cursor-pointer"
+  >
+    VIEW RAW
+  </a>
+</div>
+<hr class="hr-or-text mb-3" />
+<div class="domain-info-section flex justify-between">
+  <p class="text-base font-bold text-gray-600">DNS</p>
+  {% if domain.DNSNames %}
+  <code
+    class="text-sm font-normal text-gray-600 w-full max-w-[350px] text-right"
+  >
+    {{domain.DNSNames}}
+  </code>
+  {% else %}
+  <p class="text-base font-bold text-gray-600">unavailable</p>
+  {% endif %}
+</div>

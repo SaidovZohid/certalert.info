@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -141,11 +142,25 @@ func (h *handlerV1) HandleDomainsPage(c *fiber.Ctx) error {
 			bind["domainsHas"] = fmt.Sprintf("%v domains", len(resp))
 		}
 	}
+	user, err := h.strg.User().GetUserByEmail(context.Background(), payload.Email)
+	if err != nil {
+		return err
+	}
+
+	if user.MaxDomainsTracking == nil {
+		if len(resp) == 5 {
+			bind["hasAnUpgrade"] = true
+		}
+	} else {
+		if len(resp) == *user.MaxDomainsTracking {
+			bind["hasAnUpgrade"] = true
+		}
+	}
 
 	return c.Render("domains/domains", bind)
 }
 
-func (h *handlerV1) HandleStopMonitoring(c *fiber.Ctx) error {
+func (h *handlerV1) HandleStopMonitoringDomains(c *fiber.Ctx) error {
 	var req models.DomainsNewReq
 	if err := c.BodyParser(&req); err != nil {
 		return err
@@ -176,6 +191,39 @@ func (h *handlerV1) HandleStopMonitoring(c *fiber.Ctx) error {
 	}
 
 	return c.Send([]byte("deleted"))
+}
+
+func (h *handlerV1) HandleStopMonitoringDomain(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id", ""))
+	if err != nil {
+		return err
+	}
+	payload, _ := h.getAuth(c)
+
+	if id == 0 {
+		return errors.New("no domain to delete")
+	}
+
+	err = h.strg.Domain().DeleteTrackingDomain(context.Background(), payload.UserID, int64(id))
+	if err != nil {
+		h.log.Error(err)
+		return err
+	}
+
+	trackingDomains, err := h.strg.Domain().GetDomainsWithUserID(context.Background(), payload.UserID)
+	if err != nil {
+		h.log.Error(err)
+		return err
+	}
+
+	if len(trackingDomains) == 0 {
+		err := h.strg.User().UpdateUserLastPollToNULL(context.Background(), payload.UserID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return c.Redirect("/domains")
 }
 
 func (h *handlerV1) HandleCheckDomains(c *fiber.Ctx) error {
@@ -219,15 +267,43 @@ func (h *handlerV1) HandleCheckDomains(c *fiber.Ctx) error {
 	return c.Send([]byte(fmt.Sprintf(htmlCode, "Domain checks have been successfully completed. Please refresh the page to view the updated results!")))
 }
 
-// TODO: handle rendering domain info page!
+// TODO: It should be like this if domain does not belong to user do not show it!
 func (h *handlerV1) HandleDomainInfoShowPage(c *fiber.Ctx) error {
-	id := c.Params("id", "")
+	id, err := strconv.Atoi(c.Params("id", ""))
+	if err != nil {
+		return err
+	}
 
 	payload, _ := h.getAuth(c)
 
 	bind := fiber.Map{}
 	bind["user"] = payload
-	bind["id"] = id
+
+	domain, err := h.strg.Domain().GetDomainWithUserIDAndDomainID(context.Background(), payload.UserID, int64(id))
+	if err != nil {
+		return err
+	}
+	bind["domain"] = domain
 
 	return c.Render("domains/info", bind)
+}
+
+func (h *handlerV1) HandleShowEncodedPEM(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id", ""))
+	if err != nil {
+		return err
+	}
+
+	payload, _ := h.getAuth(c)
+
+	domain, err := h.strg.Domain().GetDomainWithUserIDAndDomainID(context.Background(), payload.UserID, int64(id))
+	if err != nil {
+		return err
+	}
+
+	if domain.EncodedPEM == nil {
+		return c.Send([]byte("unavailable"))
+	}
+
+	return c.Send([]byte(*domain.EncodedPEM))
 }

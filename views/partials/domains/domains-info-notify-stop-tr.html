@@ -1,0 +1,16 @@
+<div class="flex items-center gap-3 font-medium">
+  <form>
+    <button
+      class="text-base bg-gray-800 hover:bg-gray-600 text-white p-2 rounded-md"
+    >
+      Notification sent
+    </button>
+  </form>
+  <form action="/domains/stop/{{domain.ID}}" method="post">
+    <button
+      class="text-base bg-red-600 hover:bg-red-400 text-white p-2 rounded-md"
+    >
+      Stop monitoring
+    </button>
+  </form>
+</div>

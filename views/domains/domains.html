@@ -66,7 +66,7 @@
       {% if domains %}
       <div class="flex justify-between items-center mb-4">
         <div>
-          <h2 class="text-2xl font-bold mb-1">Tracked domains</h2>
+          <h2 class="text-2xl font-bold mb-1">Monitoring domains</h2>
           <p class="text-gray-700 font-medium">
             Certificates that are currently being monitored
           </p>
@@ -81,14 +81,25 @@
               Stop Monitoring
             </button>
           </div>
+          {% if hasAnUpgrade %}
+          <form id="telegramForm" method="GET" class="inline-block">
+            <button
+              type="submit"
+              class="py-2.5 px-5 mr-3 text-sm font-medium bg-cyan-600 rounded-lg text-white hover:bg-cyan-500 focus:ring-4 focus:outline-none mt-4"
+            >
+              Upgrade
+            </button>
+          </form>
+          {% else %}
           <form action="/domains/add" method="GET" class="inline-block">
             <button
               type="submit"
-              class="py-2.5 px-5 mr-3 text-sm font-medium bg-blue-600 rounded-lg text-white hover:bg-blue-500 focus:ring-4 focus:outline-none mt-4"
+              class="py-2.5 px-5 mr-3 text-sm font-medium bg-green-600 rounded-lg text-white hover:bg-green-500 focus:ring-4 focus:outline-none mt-4"
             >
               Add Domains
             </button>
           </form>
+          {% endif %}
           <button
             hx-get="/domains/check"
             hx-swap="outerHTML"
@@ -498,5 +509,10 @@
     const searchTerm = this.value;
     filterDomains(searchTerm);
   });
+  document
+    .getElementById("telegramForm")
+    .addEventListener("click", function () {
+      window.open("https://t.me/zohid_0212", "_blank");
+    });
 </script>
 {% endblock %}

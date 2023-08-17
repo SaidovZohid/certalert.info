@@ -2,13 +2,11 @@ package postgres
 
 import (
 	"context"
-	"strings"
 
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/pkg/ssl"
 	"github.com/SaidovZohid/certalert.info/storage/models"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 )
 
 type domainRepo struct {
@@ -42,8 +40,9 @@ func (d *domainRepo) CreateTrackingDomain(ctx context.Context, domainInfo *ssl.D
 			status,
 			last_poll_at,
 			latency,
-			error
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ARRAY[$12], $13, $14, $15, $16, $17) RETURNING id
+			error, 
+			issued
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) RETURNING id
 	`
 	err := d.db.QueryRow(
 		query,
@@ -58,12 +57,13 @@ func (d *domainRepo) CreateTrackingDomain(ctx context.Context, domainInfo *ssl.D
 		domainInfo.Signature,
 		domainInfo.DNSNames,
 		domainInfo.KeyUsage,
-		pq.Array(domainInfo.ExtKeyUsages),
+		domainInfo.ExtKeyUsages,
 		domainInfo.Expires,
 		domainInfo.Status,
 		domainInfo.LastPollAt,
 		domainInfo.Latency,
 		domainInfo.Error,
+		domainInfo.Issued,
 	).Scan(
 		&domainInfo.ID,
 	)
@@ -88,6 +88,7 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainName(ctx context.Context, domai
 			dns_names,
 			key_usage,
 			ext_key_usages,
+			issued,
 			expires,
 			status,
 			last_poll_at,
@@ -95,7 +96,6 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainName(ctx context.Context, domai
 			error
 		FROM tracking_domains WHERE user_id=$1 AND domain=$2
 	`
-	var extKeyUsages []uint8
 	err := d.db.QueryRow(query, domain.UserID, domain.DomainName).Scan(
 		&domain.ID,
 		&domain.RemoteAddr,
@@ -107,7 +107,8 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainName(ctx context.Context, domai
 		&domain.Signature,
 		&domain.DNSNames,
 		&domain.KeyUsage,
-		&extKeyUsages,
+		&domain.ExtKeyUsages,
+		&domain.Issued,
 		&domain.Expires,
 		&domain.Status,
 		&domain.LastPollAt,
@@ -117,10 +118,6 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainName(ctx context.Context, domai
 	if err != nil {
 		return nil, err
 	}
-	// Convert []uint8 to []string for ExtKeyUsages
-	extKeyUsagesStr := string(extKeyUsages)
-	extKeyUsagesSplited := strings.Split(extKeyUsagesStr, ",")
-	domain.ExtKeyUsages = &extKeyUsagesSplited
 
 	return domain, nil
 }
@@ -140,6 +137,7 @@ func (d *domainRepo) GetDomainsWithUserID(ctx context.Context, userId int64) ([]
 			dns_names,
 			key_usage,
 			ext_key_usages,
+			issued,
 			expires,
 			status,
 			last_poll_at,
@@ -155,7 +153,6 @@ func (d *domainRepo) GetDomainsWithUserID(ctx context.Context, userId int64) ([]
 	defer res.Close()
 	response := make([]*ssl.DomainTracking, 0)
 	for res.Next() {
-		var extKeyUsages []uint8
 		var domainInfo ssl.DomainTracking
 		err := res.Scan(
 			&domainInfo.ID,
@@ -169,7 +166,8 @@ func (d *domainRepo) GetDomainsWithUserID(ctx context.Context, userId int64) ([]
 			&domainInfo.Signature,
 			&domainInfo.DNSNames,
 			&domainInfo.KeyUsage,
-			&extKeyUsages,
+			&domainInfo.ExtKeyUsages,
+			&domainInfo.Issued,
 			&domainInfo.Expires,
 			&domainInfo.Status,
 			&domainInfo.LastPollAt,
@@ -180,10 +178,6 @@ func (d *domainRepo) GetDomainsWithUserID(ctx context.Context, userId int64) ([]
 			d.log.Error(err)
 			continue
 		}
-		// Convert []uint8 to []string for ExtKeyUsages
-		extKeyUsagesStr := string(extKeyUsages)
-		extKeyUsagesSplited := strings.Split(extKeyUsagesStr, ",")
-		domainInfo.ExtKeyUsages = &extKeyUsagesSplited
 		response = append(response, &domainInfo)
 	}
 
@@ -198,6 +192,17 @@ func (d *domainRepo) DeleteTrackingDomains(ctx context.Context, userID int64, do
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (d *domainRepo) DeleteTrackingDomain(ctx context.Context, userID int64, domainId int64) error {
+	query := "DELETE FROM tracking_domains WHERE user_id = $1 AND id = $2"
+
+	_, err := d.db.Exec(query, userID, domainId)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -219,13 +224,65 @@ func (d *domainRepo) UpdateExistingDomainInfo(ctx context.Context, domainInfo *s
 		status = $12,
 		last_poll_at = $13,
 		latency = $14,
-		error = $15
-	WHERE user_id = $16 AND id = $17
+		error = $15,
+		issued = $16
+	WHERE user_id = $17 AND id = $18
 	`
-	_, err := d.db.Exec(query, domainInfo.RemoteAddr, domainInfo.Issuer, domainInfo.SignatureAlgo, domainInfo.PublicKeyAlgo, domainInfo.EncodedPEM, domainInfo.PublicKey, domainInfo.Signature, domainInfo.DNSNames, domainInfo.KeyUsage, pq.Array(domainInfo.ExtKeyUsages), domainInfo.Expires, domainInfo.Status, domainInfo.LastPollAt, domainInfo.Latency, domainInfo.Error, domainInfo.UserID, domainInfo.ID)
+	_, err := d.db.Exec(query, domainInfo.RemoteAddr, domainInfo.Issuer, domainInfo.SignatureAlgo, domainInfo.PublicKeyAlgo, domainInfo.EncodedPEM, domainInfo.PublicKey, domainInfo.Signature, domainInfo.DNSNames, domainInfo.KeyUsage, domainInfo.ExtKeyUsages, domainInfo.Expires, domainInfo.Status, domainInfo.LastPollAt, domainInfo.Latency, domainInfo.Error, domainInfo.Issued, domainInfo.UserID, domainInfo.ID)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (d *domainRepo) GetDomainWithUserIDAndDomainID(ctx context.Context, userID int64, domainID int64) (*ssl.DomainTracking, error) {
+	var domain ssl.DomainTracking
+	query := `
+		SELECT 
+			id,
+			domain,
+			remote_address,
+			issuer,
+			signature_algo,
+			public_key_algo,
+			encoded_pem,
+			public_key,
+			signature,
+			dns_names,
+			key_usage,
+			ext_key_usages,
+			issued,
+			expires,
+			status,
+			last_poll_at,
+			latency,
+			error
+		FROM tracking_domains WHERE user_id=$1 AND id=$2
+	`
+	err := d.db.QueryRow(query, userID, domainID).Scan(
+		&domain.ID,
+		&domain.DomainName,
+		&domain.RemoteAddr,
+		&domain.Issuer,
+		&domain.SignatureAlgo,
+		&domain.PublicKeyAlgo,
+		&domain.EncodedPEM,
+		&domain.PublicKey,
+		&domain.Signature,
+		&domain.DNSNames,
+		&domain.KeyUsage,
+		&domain.ExtKeyUsages,
+		&domain.Issued,
+		&domain.Expires,
+		&domain.Status,
+		&domain.LastPollAt,
+		&domain.Latency,
+		&domain.Error,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain, nil
 }

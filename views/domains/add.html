@@ -1,63 +1,7 @@
 {% extends "partials/base.html" %} {% block content %} {% include "partials/header.html"%}
 
 <div class="flex w-full max-w-[1250px] mx-auto">
-  <aside class="min-h-screen w-[20%] text-gray-600 px-4 pt-8">
-    <a
-      href="/domains"
-      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img
-        width="19"
-        height="19"
-        src="./../../static/world.svg"
-        alt="globe--v1"
-        class="mr-2"
-      />Domains</a
-    >
-    <a
-      href="#menu-item-3"
-      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img
-        width="19"
-        height="19"
-        src="./../../static/user.svg"
-        alt="globe--v1"
-        class="mr-2"
-      />Account</a
-    >
-    <a
-      href="#menu-item-4"
-      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img
-        width="19"
-        height="19"
-        src="./../../static/telegram.svg"
-        alt="globe--v1"
-        class="mr-2"
-      />Notifications</a
-    >
-    <a
-      href="#menu-item-5"
-      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img
-        width="19"
-        height="19"
-        src="./../../static/integration.svg"
-        alt="globe--v1"
-        class="mr-2"
-      />Integrations</a
-    >
-    <a
-      href="/logout"
-      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
-      ><img
-        width="20"
-        height="20"
-        src="./../../static/sign-out.svg"
-        alt="globe--v1"
-        class="mr-2"
-      />Sign out</a
-    >
-  </aside>
+  {% include "partials/aside.html" %}
   <main class="w-full h-screen bg-white">
     <!-- Changed background color -->
     <form

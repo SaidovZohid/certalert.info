@@ -27,7 +27,8 @@ type TrackingDomainInfo struct {
 	Signature     *string
 	DNSNames      *string
 	KeyUsage      *string
-	ExtKeyUsages  *[]string
+	ExtKeyUsages  *string
+	Issued        *time.Time
 	Expires       *time.Time
 	Status        *string
 	LastPollAt    time.Time
@@ -78,13 +79,11 @@ func PollDomain(ctx context.Context, domain string) (*TrackingDomainInfo, error)
 		var (
 			state     = conn.ConnectionState()
 			cert      = state.PeerCertificates[0]
-			keyUsages = make([]string, len(cert.ExtKeyUsage))
-			i         = 0
+			keyUsages = ""
 		)
 
 		for _, usage := range cert.ExtKeyUsage {
-			keyUsages[i] = extKeyUsageToString(usage)
-			i++
+			keyUsages += " " + extKeyUsageToString(usage)
 		}
 
 		dnsNames := strings.Join(cert.DNSNames, ", ")
@@ -102,6 +101,7 @@ func PollDomain(ctx context.Context, domain string) (*TrackingDomainInfo, error)
 			PublicKey:     getPublicKeyType(cert),
 			EncodedPEM:    encodedPemFromCert(cert),
 			Signature:     sha1HexFromCertSignature(cert.Signature),
+			Issued:        &cert.NotBefore,
 			Expires:       &cert.NotAfter,
 			DNSNames:      &dnsNames,
 			Issuer:        &org,

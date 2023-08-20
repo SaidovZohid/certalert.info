@@ -106,3 +106,10 @@ func (d *userRepo) UpdateUserPassword(ctx context.Context, userID int64, newPass
 	_, err := d.db.Exec(query, newPassword, userID)
 	return err
 }
+
+func (d *userRepo) DeleteUser(ctx context.Context, userID int64) error {
+	query := `DELETE FROM users WHERE id = $1`
+
+	_, err := d.db.Exec(query, userID)
+	return err
+}

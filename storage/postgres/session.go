@@ -8,7 +8,6 @@ import (
 
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -31,10 +30,6 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 	}
 	// if ses is nil create new session
 	if ses == nil {
-		sesId, err := uuid.NewRandom()
-		if err != nil {
-			return nil, err
-		}
 		query := `
 		INSERT INTO sessions (
 			id,
@@ -54,7 +49,7 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 
 		err = s.db.QueryRow(
 			query,
-			sesId,
+			session.ID,
 			session.UserId,
 			session.AccessToken,
 			session.IpAddress,
@@ -79,13 +74,15 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 	// if not update existing session
 	query := `
 		UPDATE sessions SET
-			access_token = $1,
-			expires_at = $2,
+			id=$1,
+			access_token = $2,
+			expires_at = $3,
 			last_login = timezone('Asia/Tashkent', CURRENT_TIMESTAMP)
-		WHERE user_id = $3 AND ip_address = $4 AND user_agent=$5
+		WHERE user_id = $4 AND ip_address = $5 AND user_agent=$6
 	`
 	_, err = s.db.Exec(
 		query,
+		session.ID,
 		session.AccessToken,
 		session.ExpiresAt,
 		session.UserId,

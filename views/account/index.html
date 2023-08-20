@@ -1,0 +1,193 @@
+{% extends "partials/base.html" %} {% block content %} {% include "partials/header.html"%}
+<div class="flex w-full max-w-[1250px] mx-auto">
+  <aside
+    class="min-h-screen w-[20%] text-gray-600 px-4 pt-8 [&>*:nth-child(2)]:bg-gray-200"
+  >
+    <a
+      href="/domains"
+      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/world.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Domains</a
+    >
+    <a
+      href="/account"
+      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/user.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Account</a
+    >
+    <a
+      href="#menu-item-4"
+      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/telegram.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Notifications</a
+    >
+    <a
+      href="#menu-item-5"
+      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      ><img
+        width="19"
+        height="19"
+        src="./../../static/integration.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Integrations</a
+    >
+    <a
+      href="/logout"
+      class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+      ><img
+        width="20"
+        height="20"
+        src="./../../static/sign-out.svg"
+        alt="globe--v1"
+        class="mr-2"
+      />Sign out</a
+    >
+  </aside>
+  <main class="w-full h-screen">
+    <div class="content text-black my-8 w-full">
+      <!-- <h2 class="border-b-2 pb-3 text-3xl font-semibold mb-3">General</h2> -->
+      <form class="flex items-center justify-between mb-7">
+        <div>
+          <h3 class="text-2xl font-semibold">Email</h3>
+          <p class="text-gray-600">{{user.Email}}</p>
+        </div>
+        <div class="flex items-center">
+          <button
+            class="text-base border-2 border-slate-400 py-2 px-3 rounded-md hover:bg-gray-100 transition-colors duration-300 ease-in-out focus:ring-1 focus:ring-slate-400"
+          >
+            Change Email
+          </button>
+        </div>
+      </form>
+
+      <form class="flex items-center justify-between mb-7">
+        <div>
+          <h3 class="text-2xl font-semibold">Password</h3>
+          <p class="text-gray-600">********</p>
+        </div>
+        <div class="flex items-center">
+          <button
+            class="text-base border-2 border-slate-400 py-2 px-3 rounded-md hover:bg-gray-100 transition-colors duration-300 ease-in-out focus:ring-1 focus:ring-slate-400"
+          >
+            Change Password
+          </button>
+        </div>
+      </form>
+      <form class="flex items-center justify-between mb-7">
+        <div>
+          <h3 class="text-2xl font-semibold">Plan</h3>
+          <p class="text-gray-600">
+            Max domain tracking:
+            <span class="font-bold">{{maxDomainTracking}}</span>
+          </p>
+        </div>
+        <div class="flex items-center">
+          <button
+            class="text-base border-2 border-slate-400 py-2 px-3 rounded-md hover:bg-gray-100 transition-colors duration-300 ease-in-out focus:ring-1 focus:ring-slate-400"
+            onclick="upgradePlan()"
+          >
+            Upgrade
+          </button>
+        </div>
+      </form>
+
+      <h2 class="border-b-2 pb-3 text-3xl font-semibold text-red-600 mb-5">
+        Delete account
+      </h2>
+      <p class="text-base mb-4 font-medium">
+        Once you delete your account, there is no going back. Please be certain!
+      </p>
+      <button
+        id="openModalButton"
+        class="text-base font-bold text-red-600 border border-slate-400 py-2 px-3 rounded-md hover:bg-gray-100 focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-colors duration-300 ease-in-out"
+      >
+        Delete account
+      </button>
+      <!-- Delete Confirm Modal -->
+      <div
+        id="modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden"
+      >
+        <div class="bg-white w-80 p-6 rounded-lg shadow-lg">
+          <div class="flex justify-end">
+            <button
+              id="closeModal"
+              class="text-gray-600 hover:text-gray-800 focus:outline-none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18.293 18.293a1 1 0 0 1-1.414 0L10 11.414 2.121 19.293a1 1 0 1 1-1.414-1.414L8.586 10 1.707 2.121a1 1 0 1 1 1.414-1.414L10 8.586l7.879-7.879a1 1 0 1 1 1.414 1.414L11.414 10l7.879 7.879a1 1 0 0 1 0 1.414z"
+                />
+              </svg>
+            </button>
+          </div>
+          <p class="text-gray-800 text-lg mb-4">
+            Are you sure you want to delete your account?
+          </p>
+          <div class="flex justify-end space-x-3">
+            <button
+              id="cancelButton"
+              class="text-gray-600 hover:text-gray-800 focus:outline-none transition-colors duration-300 ease-in-out"
+            >
+              Cancel
+            </button>
+            <form action="/account/delete" method="get">
+              <button
+                id="confirmButton"
+                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-300 ease-in-out flex items-center"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %} {% block script %}
+<script>
+  const openModalButton = document.getElementById("openModalButton");
+  const modal = document.getElementById("modal");
+  const closeModalButton = document.getElementById("closeModal");
+  const cancelButton = document.getElementById("cancelButton");
+
+  openModalButton.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+  });
+
+  closeModalButton.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  cancelButton.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  function upgradePlan() {
+    window.open("https://t.me/zohid_0212", "_blank");
+  }
+</script>
+{% endblock %}

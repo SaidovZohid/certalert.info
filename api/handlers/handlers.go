@@ -176,6 +176,7 @@ func handleLoginDependencies(c *fiber.Ctx, h *handlerV1, id int64, data *User) e
 	timezone := time.FixedZone("GMT+5", 5*60*60) // 5 hours ahead of UTC
 
 	s := models.Session{
+		ID:          payload.Id,
 		UserId:      id,
 		AccessToken: accessToken,
 		IpAddress:   ipAddress,

@@ -283,7 +283,15 @@ func (h *handlerV1) HandleDomainInfoShowPage(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	if domain != nil {
+		bind["domainName"] = "https://" + domain.DomainName
+	}
 	bind["domain"] = domain
+	ses, err := h.strg.Session().GetSessionInfoByID(context.Background(), payload.Id.String())
+	if err != nil {
+		return err
+	}
+	bind["locationTimeZone"] = ses.Timezone
 
 	return c.Render("domains/info", bind)
 }

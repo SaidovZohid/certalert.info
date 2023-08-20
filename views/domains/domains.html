@@ -15,7 +15,7 @@
       />Domains</a
     >
     <a
-      href="#menu-item-3"
+      href="/account"
       class="flex text-lg font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
       ><img
         width="19"
@@ -66,9 +66,9 @@
       {% if domains %}
       <div class="flex justify-between items-center mb-4">
         <div>
-          <h2 class="text-2xl font-bold mb-1">Monitoring domains</h2>
+          <h2 class="text-2xl font-bold mb-1">Tracking domains</h2>
           <p class="text-gray-700 font-medium">
-            Certificates that are currently being monitored
+            Certificates that are currently being tracked
           </p>
         </div>
         <div class="flex items-center">
@@ -78,7 +78,7 @@
               id="stopMonitoringButton"
               class="bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-white px-4 py-2 rounded-md shadow-md hidden transition-colors duration-300 ease-in-out"
             >
-              Stop Monitoring
+              Stop Tracking
             </button>
           </div>
           {% if hasAnUpgrade %}
@@ -181,7 +181,7 @@
               id="confirmButton"
               class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-300 ease-in-out"
             >
-              Stop Monitoring
+              Stop Tracking
             </button>
           </div>
         </div>
@@ -265,7 +265,7 @@
               <!-- Header checkbox to check/uncheck all -->
               <th class="px-4 py-2 text-left">Domain</th>
               <th class="px-4 py-2 text-left">Issuer</th>
-              <th class="px-4 py-2 text-left">Expires In</th>
+              <th class="px-4 py-2 text-left">Days Left</th>
               <th class="px-4 py-2 text-left">Status</th>
               <th class="px-4 py-2 text-left">IP Address</th>
             </tr>
@@ -289,7 +289,7 @@
                 >
               </td>
               <td class="px-4 py-2">{{issuer(domain.Issuer)}}</td>
-              <td class="px-4 py-2">{{expires(domain.Expires)}}</td>
+              <td class="px-4 py-2">{{expires(domain.Expires, "dashboard")}}</td>
               {{domainStatus(domain.Status)}}
               <td class="px-4 py-2">{{ipAddress(domain.RemoteAddr)}}</td>
             </tr>

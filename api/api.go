@@ -56,7 +56,7 @@ func New(opt *RoutetOptions) *fiber.App {
 	// 	log.Println("Something")
 	// 	return fmt.Sprintf(aside, id)
 	// })
-	engine.AddFunc("expires", func(tm interface{}) string {
+	engine.AddFunc("expires", func(tm interface{}, name string) string {
 		if tm == nil {
 			return "unavailable"
 		}
@@ -69,9 +69,15 @@ func New(opt *RoutetOptions) *fiber.App {
 		}
 
 		daysLeft := expirationTime.Sub(timeNow).Hours() / 24
-		if daysLeft == 1 {
+		if daysLeft <= 1 && daysLeft >= 0 {
+			if name != "dashboard" {
+				return "Expires in 1 day"
+			}
 			return "1 day"
 		} else if daysLeft > 1 {
+			if name != "dashboard" {
+				return fmt.Sprintf("Expires in %.0f days", daysLeft)
+			}
 			return fmt.Sprintf("%.0f days", daysLeft)
 		}
 
@@ -93,9 +99,9 @@ func New(opt *RoutetOptions) *fiber.App {
 		case ssl.StatusInvalid:
 			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-yellow-600 domain-status">%v</td>`, ssl.StatusInvalid)
 		case ssl.StatusOffline:
-			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-teal-600 domain-status">%v</td>`, ssl.StatusOffline)
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-gray-400 domain-status">%v</td>`, ssl.StatusOffline)
 		case ssl.StatusUnResponsive:
-			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-gray-400 domain-status">%v</td>`, ssl.StatusUnResponsive)
+			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-teal-600 domain-status">%v</td>`, ssl.StatusUnResponsive)
 		case ssl.StatusExpires:
 			return fmt.Sprintf(`<td class="px-4 py-2 font-bold text-orange-600 domain-status">%v</td>`, ssl.StatusExpires)
 		}
@@ -125,6 +131,22 @@ func New(opt *RoutetOptions) *fiber.App {
 		}
 		timeFormated := tm.(*time.Time).Format(time.RFC1123)
 		return strings.Split(timeFormated, "+")[0]
+	})
+
+	engine.AddFunc("LastPollTimeFormat", func(tm time.Time, timeZone string) string {
+		// Get the time zone location from the provided session time zone.
+		loc, err := time.LoadLocation(timeZone)
+		if err != nil {
+			opt.Log.Error(err)
+			return ""
+		}
+
+		// Convert the time to the user's local time zone.
+		localTime := tm.In(loc)
+
+		// Format the local time.
+		timeFormatted := localTime.Format(time.RFC1123)
+		return strings.Split(timeFormatted, "+")[0]
 	})
 
 	engine.AddFunc("ipAddress", func(ip interface{}) string {
@@ -195,6 +217,9 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Get("/domains/check", handlers.AuthMiddleware, handlers.HandleCheckDomains)
 	app.Get("/domains/more/:id", handlers.AuthMiddleware, handlers.HandleDomainInfoShowPage)
 	app.Get("/domains/pem/:id", handlers.AuthMiddleware, handlers.HandleShowEncodedPEM)
+
+	app.Get("/account", handlers.AuthMiddleware, handlers.HandleAccountPage)
+	app.Get("/account/delete", handlers.AuthMiddleware, handlers.HandleDeleteAccount)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Render("404/index", nil)

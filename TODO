@@ -1,4 +1,4 @@
 [v] Make an Add Domains page returning error when user fills the input wrong! And add for new users can track only 5 domains. After that they should contact to support and upgrade the tracking domains size from 5.
 [v] Add domain info page to get the required info about domain ssl certificate
-[ ] Make account page to change the fullname, email and password.
+[ ] Make account page to change the full name, email and password.
 [ ] write github workflow CI/CD

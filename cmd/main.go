@@ -31,7 +31,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-	defer psqlConn.Close()
+	defer func() {
+		if err := psqlConn.Close(); err != nil {
+			log.Fatalf("ERROR while closing connection: %v", err)
+		}
+	}()
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr: cfg.Redis,
 	})
@@ -45,15 +50,6 @@ func main() {
 		Strg:     strg,
 		InMemory: inMemory,
 	})
-
-	// ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-
-	// dm, err := ssl.PollDomain(ctx, "zohiddev.me")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// log.Info(dm.Status)
-	// cancel()
 
 	log.Info("HTTP running in PORT -> ", cfg.HttpPort)
 	log.Fatal("error while listening http port:", app.Listen(cfg.HttpPort))

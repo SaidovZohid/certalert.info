@@ -12,6 +12,7 @@ type UserStorageI interface {
 	UpdateUserLastPollToNULL(ctx context.Context, userID int64) error
 	UpdateUserPassword(ctx context.Context, userID int64, newPassword string) error
 	DeleteUser(ctx context.Context, userID int64) error
+	UpdateUserEmail(ctx context.Context, userID int64, newEmailAddr string) error
 }
 
 type User struct {

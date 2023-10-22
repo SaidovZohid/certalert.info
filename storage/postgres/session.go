@@ -44,7 +44,7 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 			timezone,
 			last_login
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-		RETURNING id, is_blocked,created_at
+		RETURNING created_at
 		`
 
 		err = s.db.QueryRow(
@@ -61,8 +61,6 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 			session.Timezone,
 			time.Now().In(time.FixedZone("GMT+5", 5*60*60)),
 		).Scan(
-			&session.ID,
-			&session.IsBlocked,
 			&session.CreatedAt,
 		)
 		if err != nil {
@@ -93,7 +91,7 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 		return nil, err
 	}
 
-	return ses, nil
+	return session, nil
 }
 
 func (s *sessionRepo) GetSession(ctx context.Context, userId int64, ipAddress, Device string) (*models.Session, error) {
@@ -189,6 +187,14 @@ func (s *sessionRepo) GetSessionInfoByID(ctx context.Context, id string) (*model
 func (s *sessionRepo) DeleteSessionByID(ctx context.Context, id string) error {
 	query := `
 		DELETE FROM sessions WHERE id = $1
+	`
+	_, err := s.db.Exec(query, id)
+	return err
+}
+
+func (s *sessionRepo) DeleteSessionByUserID(ctx context.Context, id int64) error {
+	query := `
+		DELETE FROM sessions WHERE user_id = $1
 	`
 	_, err := s.db.Exec(query, id)
 	return err

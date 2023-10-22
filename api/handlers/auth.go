@@ -267,7 +267,7 @@ func (h *handlerV1) HandleLogout(c *fiber.Ctx) error {
 		h.log.Error(err)
 	}
 
-	// It will set the time on 2009 year that is why cookie will automatically deleted
+	// It will set the time on 2009 year that is why cookie will automatically be deleted
 	h.SetCookie(c, h.cfg.AuthCookieNameCertAlert, "", time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
 
 	return c.Redirect(c.BaseURL()+"/login", 302)

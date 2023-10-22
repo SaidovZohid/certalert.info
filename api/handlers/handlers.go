@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"regexp"
@@ -147,7 +146,7 @@ func GetLocation(ipaddress string, cfg *config.Config) (*LocationInfo, error) {
 func handleLoginDependencies(c *fiber.Ctx, h *handlerV1, id int64, data *User) error {
 	accessToken, payload, err := utils.CreateToken(h.cfg, &utils.TokenParams{
 		UserID:   id,
-		Duration: time.Hour * 24, // token is valid for 1 days
+		Duration: time.Hour * 24, // token is valid for 1 day
 		Email:    data.Email,
 	})
 	if err != nil {
@@ -158,7 +157,7 @@ func handleLoginDependencies(c *fiber.Ctx, h *handlerV1, id int64, data *User) e
 
 	locationInfo, err := GetLocation(ipAddress, h.cfg)
 	if err != nil {
-		log.Println("Failed to get user info: ", err)
+		h.log.Println("Failed to get user info: ", err)
 	}
 
 	// Parse the User-Agent string using the user_agent library
@@ -204,23 +203,23 @@ func handleLoginDependencies(c *fiber.Ctx, h *handlerV1, id int64, data *User) e
 	return nil
 }
 
-func getCurrentTimeInTimeZone(timezone string) (time.Time, error) {
-	// Get the UTC offset for the timezone
-	loc, err := time.LoadLocation(timezone)
-	if err != nil {
-		return time.Time{}, err
-	}
+// func getCurrentTimeInTimeZone(timezone string) (time.Time, error) {
+// 	// Get the UTC offset for the timezone
+// 	loc, err := time.LoadLocation(timezone)
+// 	if err != nil {
+// 		return time.Time{}, err
+// 	}
 
-	_, offsetSeconds := time.Now().In(loc).Zone()
+// 	_, offsetSeconds := time.Now().In(loc).Zone()
 
-	// Create a fixed timezone with the offset
-	fixedTimezone := time.FixedZone(timezone, offsetSeconds)
+// 	// Create a fixed timezone with the offset
+// 	fixedTimezone := time.FixedZone(timezone, offsetSeconds)
 
-	// Get the current time in the specified timezone
-	currentTime := time.Now().In(fixedTimezone)
+// 	// Get the current time in the specified timezone
+// 	currentTime := time.Now().In(fixedTimezone)
 
-	return currentTime, nil
-}
+// 	return currentTime, nil
+// }
 
 type TrackDomainAdd struct {
 	Domains []string

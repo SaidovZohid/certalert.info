@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"time"
 
@@ -39,14 +40,15 @@ func SetFlash(c *fiber.Ctx, messageType, key, message string) {
 
 func GetFlash(c *fiber.Ctx) *FlashMessage {
 	flashCookie := c.Cookies("flash")
-
 	flashValue, err := url.QueryUnescape(flashCookie)
 	if err != nil {
+		log.Println(err)
 		return nil
 	}
 
 	flash := FlashMessage{}
 	if err := json.Unmarshal([]byte(flashValue), &flash); err != nil {
+		log.Println(err)
 		return nil
 	}
 

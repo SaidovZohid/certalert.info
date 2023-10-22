@@ -41,10 +41,10 @@ func New(opt *RoutetOptions) *fiber.App {
 
 	// Redirect invalid API requests to the main URL
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
-	app.Use(func(c *fiber.Ctx) error {
-		c.Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
-		return c.Next()
-	})
+	//app.Use(func(c *fiber.Ctx) error {
+	//	c.Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+	//	return c.Next()
+	//})
 	app.Use(h.WithFlash)
 	app.Use(favicon.New(favicon.Config{
 		File: "./static/favicon.ico",
@@ -220,6 +220,11 @@ func New(opt *RoutetOptions) *fiber.App {
 
 	app.Get("/account", handlers.AuthMiddleware, handlers.HandleAccountPage)
 	app.Get("/account/delete", handlers.AuthMiddleware, handlers.HandleDeleteAccount)
+
+	// change email
+	app.Get("/account/change-email", handlers.AuthMiddleware, handlers.HandleChangeEmailPage)
+	app.Post("/account/change-email", handlers.AuthMiddleware, handlers.HandleChangeEmail)
+	app.Get("/account/change-email/options", handlers.HandleChangeEmailOptions)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Render("404/index", nil)

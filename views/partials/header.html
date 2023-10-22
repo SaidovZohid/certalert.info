@@ -1,15 +1,14 @@
-{% block header %}
 <!-- headers -->
 <header>
   <div
     class="max-w-[1250px] mx-auto px-4 py-4 flex items-center justify-between"
   >
-    <a class="text-[30px] text-gray-800 font-bold" href="/">CertAlert</a>
+    <a class="text-[30px] text-gray-800 font-bold" href="/">CertAlert <span class="text-xl font-medium bg-gray-800 text-white px-2 py-0.5 rounded-lg text-center">beta</span></a>
     <div class="relative inline-block">
       <button
         id="dropdownDefaultButton"
         data-dropdown-toggle="dropdown"
-        class="text-[17px] flex items-center text-gray-800 font-medium"
+        class="flex text-[17px] max-[860px]:hidden items-center text-gray-800 font-medium"
         type="button"
       >
         {{user.Email}}
@@ -29,6 +28,135 @@
           />
         </svg>
       </button>
+
+      <!-- Burger Menu Button -->
+      <button class="hidden max-[860px]:flex" id="burgerButton">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16m-7 6h7"
+          ></path>
+        </svg>
+      </button>
+
+      <!-- Menu Container -->
+      <div
+        id="menuContainer"
+        class="flex flex-col w-[100%] max-[768px]:w-[50%] max-[550px]:w-[100%] items-center fixed inset-y-0 right-0 bg-gray-50 h-[105vh] p-5 transition-transform duration-300 transform hidden"
+      >
+        <!-- Close Button -->
+        <button id="closeButton" class="absolute top-4 right-0 left-[20px]">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- Menu Items -->
+        <ul class="text-center pt-24 lg:pt-0 h-full">
+          <aside
+            class="w-[100%] text-gray-600 px-4 pt-8"
+          >
+            <a
+              href="/domains"
+              class="flex text-xl font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+              ><img
+                width="19"
+                height="19"
+                src="./../../static/world.svg"
+                alt="globe--v1"
+                class="mr-2"
+              />
+              <h3>Domains</h3></a
+            >
+            <a
+              href="#menu-item-4"
+              class="flex text-xl font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+              ><img
+                width="19"
+                height="19"
+                src="./../../static/telegram.svg"
+                alt="globe--v1"
+                class="mr-2"
+              />
+              <h3>Notifications</h3></a
+            >
+            <a
+              href="#menu-item-5"
+              class="flex text-xl font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+              ><img
+                width="19"
+                height="19"
+                src="./../../static/integration.svg"
+                alt="globe--v1"
+                class="mr-2"
+              />
+              <h3>Integrations</h3></a
+            >
+            <a
+              href="/logout"
+              class="flex text-xl font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
+              ><img
+                width="20"
+                height="20"
+                src="./../../static/sign-out.svg"
+                alt="globe--v1"
+                class="mr-2"
+              />
+              <h3>Sign out</h3></a
+            >
+
+            <div class="flex items-center justify-center">
+              <a
+                href="/account"
+                class="pt-5 border-t-[1px] gap-2 absolute bottom-[30px] left-[0] right-[0] flex text-[17px] items-center justify-center text-gray-800 font-medium"
+              >
+                <svg
+                  width="20px"
+                  height="20px"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="6"
+                    r="4"
+                    stroke="#6B7280"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M19.9975 18C20 17.8358 20 17.669 20 17.5C20 15.0147 16.4183 13 12 13C7.58172 13 4 15.0147 4 17.5C4 19.9853 4 22 12 22C14.231 22 15.8398 21.8433 17 21.5634"
+                    stroke="#6B7280"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <p>{{user.Email}}</p>
+              </a>
+            </div>
+          </aside>
+        </ul>
+      </div>
+
       <!-- Dropdown menu -->
       <div
         id="dropdown"
@@ -40,7 +168,7 @@
         >
           <li>
             <a
-              href="#"
+              href="/account"
               class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white hover:rounded-md"
               >Account</a
             >
@@ -71,20 +199,44 @@
     </div>
   </div>
 </header>
-{% endblock %} {% block script %}
 <script>
+  // JavaScript code to open and close the menu
+  const burgerButton = document.getElementById("burgerButton");
+  const menuContainerBurger = document.getElementById("menuContainer");
+  const closeButtonBurger = document.getElementById("closeButton");
+
+  burgerButton.addEventListener("click", function () {
+    menuContainerBurger.classList.toggle("hidden");
+  });
+
+  closeButtonBurger.addEventListener("click", function () {
+    menuContainerBurger.classList.add("hidden");
+  });
+
+  // Close the menu when clicking outside of it
+  // document.addEventListener("click", function (e) {
+  //   if (
+  //     !menuContainerBurger.contains(e.target) &&
+  //     !burgerButton.contains(e.target)
+  //   ) {
+  //     menuContainerBurger.classList.remove("translate-x-0");
+  //   }
+  // });
+
   const dropdownButton = document.getElementById("dropdownDefaultButton");
   const dropdownMenu = document.getElementById("dropdown");
-  const links = document.querySelectorAll("aside a");
-  const contents = document.querySelectorAll(".content");
 
   // Function to toggle dropdown menu
-  function toggleDropdown() {
-    dropdownMenu.classList.toggle("hidden");
-  }
+  // function toggleDropdown() {
+  //   console.log("I am here when you press email")
+  //   dropdownMenu.classList.toggle("hidden");
+  // }
 
   // Toggle dropdown when email button is clicked
-  dropdownButton.addEventListener("click", toggleDropdown);
+  dropdownButton.addEventListener("click", () => {
+    console.log("I am here when you press email")
+    dropdownMenu.classList.toggle("hidden")
+  })
 
   // Close dropdown when clicking outside
   document.addEventListener("click", (event) => {
@@ -95,17 +247,4 @@
       dropdownMenu.classList.add("hidden");
     }
   });
-
-  links.forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      const target = event.target.getAttribute("href");
-      contents.forEach((content) => {
-        content.classList.add("hidden");
-      });
-      document.querySelector(target).classList.remove("hidden");
-      dropdownMenu.classList.add("hidden"); // Close the dropdown menu when clicking a link
-    });
-  });
 </script>
-{% endblock %}

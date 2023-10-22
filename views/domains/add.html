@@ -2,7 +2,7 @@
 
 <div class="flex w-full max-w-[1250px] mx-auto">
   {% include "partials/aside.html" %}
-  <main class="w-full h-screen bg-white">
+  <main class="w-full h-screen bg-white mx-2">
     <!-- Changed background color -->
     <form
       action="/domains/add/new"
@@ -10,8 +10,8 @@
       class="content text-white my-8 w-full"
     >
       <div class="content text-black my-8 w-full" id="menu-item-2">
-        <h2 class="text-2xl font-bold mb-2">Track More Domains</h2>
-        <p class="font-medium">
+        <h2 class="text-2xl font-bold mb-2 max-[850px]:text-center">Track More Domains</h2>
+        <p class="font-medium max-[850px]:text-center">
           Add one or more domains, separated by spaces, that you want to track.
         </p>
         {% if flash.maxTrackingDomainsExited %}
@@ -56,7 +56,7 @@
         <div>
           <textarea
             name="domains"
-            class="w-[700px] mt-2 h-[200px] bg-[#E5E7EB] border p-2 focus:border-collapse resize-none rounded-md block mb-4 placeholder:text-gray-600"
+            class="w-[100%] mt-2 h-[200px] bg-[#E5E7EB] border p-2 focus:border-collapse resize-none rounded-md block mb-4 placeholder:text-gray-600"
             placeholder="certalert.info zohiddev.me"
             required
           >

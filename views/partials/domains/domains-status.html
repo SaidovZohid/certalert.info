@@ -1,43 +1,43 @@
-<div>
+<div class="flex items-center max-[850px]:justify-center">
   {% if domainStatusToString(domain.Status) == "healthy" %}
   <p
-    class="font-medium bg-green-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3"
+    class="font-medium bg-green-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
   >
     HEALTHY
   </p>
   {% elif domainStatusToString(domain.Status) == "expires" %}
   <p
-    class="font-medium bg-orange-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3"
+    class="font-medium bg-orange-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
   >
     EXPIRES
   </p>
   {% elif domainStatusToString(domain.Status) == "expired" %}
   <p
-    class="font-medium bg-red-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3"
+    class="font-medium bg-red-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
   >
     EXPIRED
   </p>
   {% elif domainStatusToString(domain.Status) == "invalid" %}
   <p
-    class="font-medium bg-yellow-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3"
+    class="font-medium bg-yellow-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
   >
     INVALID
   </p>
   {% elif domainStatusToString(domain.Status) == "offline" %}
   <p
-    class="font-medium bg-gray-400 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3"
+    class="font-medium bg-gray-400 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
   >
     OFFLINE
   </p>
   {% elif domainStatusToString(domain.Status) == "unresponsive" %}
   <p
-    class="font-medium bg-teal-600 text-white rounded-xl p-2 flex max-w-[140px] items-center justify-center mb-3"
+    class="font-medium bg-teal-600 text-white rounded-xl p-2 flex max-w-[140px] items-center justify-center mb-3 max-[850px]:text-center"
   >
     UNRESPONSIVE
   </p>
-  {% elif domainStatusToString(domain.Status) == "unresponsive" %}
+  {% else %}
   <p
-    class="font-medium bg-gray-900 text-white rounded-xl p-2 flex max-w-[140px] items-center justify-center mb-3"
+    class="font-medium bg-gray-900 text-white rounded-xl p-2 flex max-w-[140px] items-center justify-center mb-3 max-[850px]:text-center"
   >
     UNAVAILABLE
   </p>

@@ -10,6 +10,7 @@ import (
 type InMemoryStorageI interface {
 	Set(key, value string, exp time.Duration) error
 	Get(key string) (string, error)
+	Del(key string) error
 }
 
 type storageRedis struct {
@@ -36,4 +37,12 @@ func (rd *storageRedis) Get(key string) (string, error) {
 		return "", err
 	}
 	return val, nil
+}
+
+func (rd *storageRedis) Del(key string) error {
+	_, err := rd.client.Del(context.Background(), key).Result()
+	if err != nil {
+		return err
+	}
+	return nil
 }

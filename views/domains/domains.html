@@ -1,7 +1,7 @@
 {% extends "partials/base.html" %} {% block content %} {% include "partials/header.html"%}
 <div class="flex w-full max-w-[1250px] mx-auto">
   <aside
-    class="min-h-screen w-[20%] text-gray-600 px-4 pt-8 [&>*:nth-child(1)]:bg-gray-200"
+    class="max-[860px]:hidden min-h-screen w-[20%] text-gray-600 px-4 pt-8 [&>*:nth-child(1)]:bg-gray-200"
   >
     <a
       href="/domains"
@@ -12,7 +12,8 @@
         src="./../../static/world.svg"
         alt="globe--v1"
         class="mr-2"
-      />Domains</a
+      />
+      <h3>Domains</h3></a
     >
     <a
       href="/account"
@@ -23,7 +24,8 @@
         src="./../../static/user.svg"
         alt="globe--v1"
         class="mr-2"
-      />Account</a
+      />
+      <h3>Account</h3></a
     >
     <a
       href="#menu-item-4"
@@ -34,7 +36,8 @@
         src="./../../static/telegram.svg"
         alt="globe--v1"
         class="mr-2"
-      />Notifications</a
+      />
+      <h3>Notifications</h3></a
     >
     <a
       href="#menu-item-5"
@@ -45,7 +48,8 @@
         src="./../../static/integration.svg"
         alt="globe--v1"
         class="mr-2"
-      />Integrations</a
+      />
+      <h3>Integrations</h3></a
     >
     <a
       href="/logout"
@@ -56,45 +60,59 @@
         src="./../../static/sign-out.svg"
         alt="globe--v1"
         class="mr-2"
-      />Sign out</a
+      />
+      <h3>Sign out</h3></a
     >
   </aside>
   <main class="w-full h-screen">
     <!-- Content for Menu Item 1 -->
-    <div class="content text-black my-8 w-full" id="menu-item-1">
+    <div class="content text-black my-8 mx-5 w-full" id="menu-item-1">
       <!-- table -->
       {% if domains %}
-      <div class="flex justify-between items-center mb-4">
+      <div
+        class="flex justify-between items-center mb-4 max-[850px]:flex-col max-[600px]:items-center max-[600px]:justify-center"
+      >
         <div>
-          <h2 class="text-2xl font-bold mb-1">Tracking domains</h2>
-          <p class="text-gray-700 font-medium">
-            Certificates that are currently being tracked
+          <h2 class="text-2xl font-bold mb-1 max-[850px]:text-center">
+            Monitoring domains
+          </h2>
+          <p class="text-gray-700 font-medium max-[850px]:text-center">
+            Certificates that are currently being monitored
           </p>
         </div>
-        <div class="flex items-center">
+        <div
+          class="flex items-center max-[850px]:justify-center max-[600px]:flex-row max-[600px]:items-center max-[424px]:flex-wrap"
+        >
           <!-- Add the "Stop Monitoring" button here -->
-          <div class="mr-3">
+          <div class="mr-3 max-[500px]:mr-1">
             <button
               id="stopMonitoringButton"
-              class="bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-white px-4 py-2 rounded-md shadow-md hidden transition-colors duration-300 ease-in-out"
+              class="bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-white px-4 py-2 max-[500px]:px-2 text-base rounded-md shadow-md transition-colors duration-300 ease-in-out hidden"
             >
-              Stop Tracking
+              Stop Monitoring
             </button>
           </div>
           {% if hasAnUpgrade %}
           <form id="telegramForm" method="GET" class="inline-block">
             <button
               type="submit"
-              class="py-2.5 px-5 mr-3 text-sm font-medium bg-cyan-600 rounded-lg text-white hover:bg-cyan-500 focus:ring-4 focus:outline-none mt-4"
+              class="py-2.5 px-5 max-[500px]:px-3 mr-3 max-[500px]:mr-1 text-sm font-medium bg-cyan-600 rounded-lg text-white hover:bg-cyan-500 focus:ring-4 focus:outline-none mt-4"
             >
               Upgrade
             </button>
           </form>
+          <script>
+            const telegramForm = document.getElementById("telegramForm");
+
+            telegramForm.addEventListener("click", function () {
+              window.open("https://t.me/zohid_0212", "_blank");
+            });
+          </script>
           {% else %}
           <form action="/domains/add" method="GET" class="inline-block">
             <button
               type="submit"
-              class="py-2.5 px-5 mr-3 text-sm font-medium bg-green-600 rounded-lg text-white hover:bg-green-500 focus:ring-4 focus:outline-none mt-4"
+              class="py-2.5 px-5 max-[500px]:px-3 mr-3 max-[500px]:mr-1 text-sm font-medium bg-green-600 rounded-lg text-white hover:bg-green-500 focus:ring-4 focus:outline-none mt-4"
             >
               Add Domains
             </button>
@@ -105,7 +123,7 @@
             hx-swap="outerHTML"
             id="checkAllCertificatesButton"
             hx-target="#success"
-            class="py-2.5 px-5 mr-2 text-sm font-medium bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 inline-flex items-center focus:ring-4 focus:outline-none focus:ring-[#212529]/50"
+            class="py-2.5 px-5 max-[500px]:px-3 mr-2 max-[500px]:mr-0 text-sm font-medium bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 inline-flex items-center focus:ring-4 focus:outline-none focus:ring-[#212529]/50"
           >
             <span class="htmx-indicator spinning-indicator" id="spinner">
               <svg
@@ -131,14 +149,18 @@
       </div>
       <!-- for showing search input -->
       <div class="flex flex-col w-full max-w-[1250px] mx-auto space-x-4">
-        <div class="flex items-center space-x-4">
+        <div
+          class="flex items-center space-x-4 max-[340px]:mr-4 max-[340px]:space-x-2"
+        >
           <input
             type="text"
             id="searchInput"
-            class="flex-grow px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            class="flex-grow px-4 py-2 max-[340px]:px-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
             placeholder="Search domains with domain name and status of domain..."
           />
-          <div class="flex items-center space-x-2 border rounded-lg px-4 py-2">
+          <div
+            class="flex items-center space-x-2 border rounded-lg px-4 py-2 max-[340px]:px-1"
+          >
             <span id="foundDomainsCount">{{domainsHas}}</span>
           </div>
         </div>
@@ -181,12 +203,11 @@
               id="confirmButton"
               class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-300 ease-in-out"
             >
-              Stop Tracking
+              Stop Monitoring
             </button>
           </div>
         </div>
       </div>
-      <!-- no domains found  -->
       <div id="noDomainsFound" class="text-gray-700 font-medium mt-4 hidden">
         Sorry, no domains match your search criteria.
       </div>
@@ -255,8 +276,8 @@
         <div class="ml-3 text-sm font-medium">%v</div>
       </div>
       <!-- domains info -->
-      <div class="flex mt-3">
-        <table class="min-w-full">
+      <div class="flex mt-3 overflow-x-auto">
+        <table class="min-w-full max-[860px]:table-fixed">
           <thead>
             <tr>
               <th class="w-8">
@@ -265,7 +286,7 @@
               <!-- Header checkbox to check/uncheck all -->
               <th class="px-4 py-2 text-left">Domain</th>
               <th class="px-4 py-2 text-left">Issuer</th>
-              <th class="px-4 py-2 text-left">Days Left</th>
+              <th class="px-4 py-2 text-left">Expires In</th>
               <th class="px-4 py-2 text-left">Status</th>
               <th class="px-4 py-2 text-left">IP Address</th>
             </tr>
@@ -289,7 +310,9 @@
                 >
               </td>
               <td class="px-4 py-2">{{issuer(domain.Issuer)}}</td>
-              <td class="px-4 py-2">{{expires(domain.Expires, "dashboard")}}</td>
+              <td class="px-4 py-2">
+                {{expires(domain.Expires, "dashboard")}}
+              </td>
               {{domainStatus(domain.Status)}}
               <td class="px-4 py-2">{{ipAddress(domain.RemoteAddr)}}</td>
             </tr>
@@ -438,7 +461,10 @@
   // Function to make a request to stop monitoring
   async function stopMonitoring() {
     const selectedDomainNames = getSelectedDomains();
-    if (selectedDomainNames.length === 0) return;
+    if (selectedDomainNames.length === 0){
+      console.log("No domains selected");
+      return;
+  }
 
     try {
       const response = await fetch("/domains/stop", {
@@ -509,10 +535,5 @@
     const searchTerm = this.value;
     filterDomains(searchTerm);
   });
-  document
-    .getElementById("telegramForm")
-    .addEventListener("click", function () {
-      window.open("https://t.me/zohid_0212", "_blank");
-    });
 </script>
 {% endblock %}

@@ -11,6 +11,7 @@ type SessionStorageI interface {
 	Session(ctx context.Context, s *Session) (*Session, error)
 	GetSessionInfoByID(ctx context.Context, id string) (*Session, error)
 	DeleteSessionByID(ctx context.Context, id string) error
+	DeleteSessionByUserID(ctx context.Context, id int64) error
 }
 
 type Session struct {

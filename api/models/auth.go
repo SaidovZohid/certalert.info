@@ -16,6 +16,10 @@ type ForgotPasswordReq struct {
 	Email string `json:"email"`
 }
 
+type ChangeEmailReq struct {
+	Email string `json:"email"`
+}
+
 type UpdatePasswordReq struct {
 	Password string `json:"password"`
 }

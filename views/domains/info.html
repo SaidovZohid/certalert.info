@@ -25,12 +25,198 @@
           </div>
         </div>
         <!-- Notify and Stop Tracking buttons -->
-        {% include "partials/domains/domains-info-notify-stop-tr.html" %}
+        <div class="flex items-center gap-3 font-medium max-[850px]:justify-center">
+          <form>
+            <button
+              class="text-base bg-gray-800 hover:bg-gray-600 text-white p-2 rounded-md"
+            >
+              Notification sent
+            </button>
+          </form>
+          <form action="/domains/stop/{{domain.ID}}" method="post">
+            <button
+              class="text-base bg-red-600 hover:bg-red-400 text-white p-2 rounded-md"
+            >
+              Stop monitoring
+            </button>
+          </form>
+        </div>        
       </div>
       <!-- Domains Status -->
-      {% include "partials/domains/domains-status.html" %}
-      <!-- Domains info -->
-      {% include "partials/domains/domains-info.html" %}
+      <div class="flex items-center max-[850px]:justify-center">
+        {% if domainStatusToString(domain.Status) == "healthy" %}
+        <p
+          class="font-medium bg-green-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
+        >
+          HEALTHY
+        </p>
+        {% elif domainStatusToString(domain.Status) == "expires" %}
+        <p
+          class="font-medium bg-orange-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
+        >
+          EXPIRES
+        </p>
+        {% elif domainStatusToString(domain.Status) == "expired" %}
+        <p
+          class="font-medium bg-red-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
+        >
+          EXPIRED
+        </p>
+        {% elif domainStatusToString(domain.Status) == "invalid" %}
+        <p
+          class="font-medium bg-yellow-500 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
+        >
+          INVALID
+        </p>
+        {% elif domainStatusToString(domain.Status) == "offline" %}
+        <p
+          class="font-medium bg-gray-400 text-white rounded-xl p-2 flex max-w-[90px] items-center justify-center mb-3 max-[850px]:text-center"
+        >
+          OFFLINE
+        </p>
+        {% elif domainStatusToString(domain.Status) == "unresponsive" %}
+        <p
+          class="font-medium bg-teal-600 text-white rounded-xl p-2 flex max-w-[140px] items-center justify-center mb-3 max-[850px]:text-center"
+        >
+          UNRESPONSIVE
+        </p>
+        {% else %}
+        <p
+          class="font-medium bg-gray-900 text-white rounded-xl p-2 flex max-w-[140px] items-center justify-center mb-3 max-[850px]:text-center"
+        >
+          UNAVAILABLE
+        </p>
+        {% endif %}
+      </div>
+      <!-- Domains Info -->
+      <div class="full-info flex items-center mb-3">
+        <div class="flex-grow h-px border-y-2 bg-gray-100"></div>
+        <span class="px-4 text-gray-500">Certificate Information</span>
+        <div class="flex-grow h-px border-y-2 bg-gray-100"></div>
+      </div>
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-blue-600">Issuer</p>
+        <p class="text-base font-bold text-gray-800">{{issuer(domain.Issuer)}}</p>
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-indigo-600">Signature Algo</p>
+        {% if domain.SignatureAlgo %}
+        <p class="text-base font-bold text-gray-800 max-[850px]:text-[5px]">{{domain.SignatureAlgo}}</p>
+        {% else %}
+        <p class="text-base font-bold text-gray-800">unavailable</p>
+        {% endif %}
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-green-600">PublicKey Algo</p>
+        {% if domain.PublicKeyAlgo %}
+        <p class="text-base font-bold text-gray-800">{{domain.PublicKeyAlgo}}</p>
+        {% else %}
+        <p class="text-base font-bold text-gray-800">unavailable</p>
+        {% endif %}
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-purple-600">Key Usage</p>
+        {% if domain.KeyUsage %}
+        <p class="text-base font-bold text-gray-800">{{domain.KeyUsage}}</p>
+        {% else %}
+        <p class="text-base font-bold text-gray-800">unavailable</p>
+        {% endif %}
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col max-[850px]:text-center">
+        <p class="text-base font-bold text-gray-800">Extended usage</p>
+        <p class="text-base font-bold text-gray-800">
+          {{parseExtKeyUsage(domain.ExtKeyUsages)}}
+        </p>
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-blue-600">Issued Date</p>
+        <p class="text-base font-bold text-gray-800">{{timeFormat(domain.Issued)}}</p>
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-orange-600">Expiration Date</p>
+        <p class="text-base font-bold text-gray-800">
+          {{timeFormat(domain.Expires)}}
+        </p>
+      </div>
+      <div class="full-info flex items-center mb-3">
+        <div class="flex-grow h-px border-y-2 bg-gray-100"></div>
+        <span class="px-4 text-gray-500">Certificate Details</span>
+        <div class="flex-grow h-px border-y-2 bg-gray-100"></div>
+      </div>
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-purple-600">Encoded PEM</p>
+        <a
+          href="/domains/pem/{{domain.ID}}"
+          target="_blank"
+          class="text-base bg-gray-800 text-white px-2 py-1 rounded-md font-medium cursor-pointer"
+        >
+          VIEW RAW
+        </a>
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-green-600">Public Key</p>
+        {% if domain.PublicKey %}
+        <p class="text-base font-bold text-gray-800">{{domain.PublicKey}}</p>
+        {% else %}
+        <p class="text-base font-bold text-gray-800">unavailable</p>
+        {% endif %}
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-indigo-600">Signature</p>
+        {% if domain.Signature %}
+        <p class="text-base font-bold text-gray-800 max-[340px]:text-sm">{{domain.Signature}}</p>
+        {% else %}
+        <p class="text-base font-bold text-gray-800 max-[850px]:text-sm">unavailable</p>
+        {% endif %}
+      </div>
+      <div class="full-info flex items-center mb-3">
+        <div class="flex-grow h-px border-y-2 bg-gray-100"></div>
+        <span class="px-4 text-gray-500">Server Information</span>
+        <div class="flex-grow h-px border-y-2 bg-gray-100"></div>
+      </div>
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-yellow-600">Last Checked</p>
+        <p class="text-base font-bold text-gray-800">{{LastPollTimeFormat(domain.LastPollAt, locationTimeZone)}}</p>
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-teal-600">Response Time</p>
+        {% if domain.Latency %}
+        <p class="text-base font-bold text-gray-800">{{domain.Latency}} ms</p>
+        {% else %}
+        <p class="text-base font-bold text-gray-800">unavailable</p>
+        {% endif %}
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex items-center justify-between mb-3 max-[850px]:flex-col">
+        <p class="text-base font-bold text-red-600">Error</p>
+        {% if domain.Error %}
+        <p class="text-base font-bold text-gray-800">Timeout Error</p>
+        {% else %}
+        <p class="text-base font-bold text-green-600">Everything is good!</p>
+        {% endif %}
+      </div>
+      <hr class="hr-or-text mb-3" />
+      <div class="domain-info-section flex justify-between pb-10 max-[850px]:flex-col max-[850px]:items-center">
+        <p class="text-base font-bold text-pink-600 max-[850px]:text-center">DNS</p>
+        {% if domain.DNSNames %}
+        <code
+          class="text-sm font-normal text-gray-800 w-full max-w-[350px] text-right max-[850px]:justify-center"
+        >
+          {{domain.DNSNames}}
+        </code>
+        {% else %}
+        <p class="text-base font-bold text-gray-800 max-[850px]:text-center">unavailable</p>
+        {% endif %}
+      </div>    
     </div>
   </main>
 </div>

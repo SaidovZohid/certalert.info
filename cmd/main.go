@@ -1,14 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"os"
 
 	"github.com/SaidovZohid/certalert.info/api"
 	"github.com/SaidovZohid/certalert.info/config"
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -19,7 +20,7 @@ func main() {
 
 	cfg := config.Load()
 	log.Info("config initialized")
-	psqlUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	databaseUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Postgres.Host,
 		cfg.Postgres.Port,
 		cfg.Postgres.User,
@@ -27,21 +28,29 @@ func main() {
 		cfg.Postgres.Database,
 	)
 
-	psqlConn, err := sqlx.Connect("postgres", psqlUrl)
+	// psqlConn, err := sqlx.Connect("postgres", psqlUrl)
+	// if err != nil {
+	// 	log.Fatalf("failed to connect to database: %v", err)
+	// }
+
+	// this returns connection pool
+	dbPool, err := pgxpool.Connect(context.Background(), databaseUrl)
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
 	}
-	defer func() {
-		if err := psqlConn.Close(); err != nil {
-			log.Fatalf("ERROR while closing connection: %v", err)
-		}
-	}()
+	defer dbPool.Close()
+	// defer func() {
+	// 	if err := psqlConn.Close(); err != nil {
+	// 		log.Fatalf("ERROR while closing connection: %v", err)
+	// 	}
+	// }()
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr: cfg.Redis,
 	})
 
-	strg := storage.NewStoragePg(psqlConn, log)
+	strg := storage.NewStoragePg(dbPool, log)
 	inMemory := storage.NewInMemoryStorage(rdb)
 
 	app := api.New(&api.RoutetOptions{

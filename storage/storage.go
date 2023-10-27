@@ -4,7 +4,7 @@ import (
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
 	"github.com/SaidovZohid/certalert.info/storage/postgres"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type StorageI interface {
@@ -19,7 +19,7 @@ type StoragePg struct {
 	domainRepo  models.DomainStorageI
 }
 
-func NewStoragePg(db *sqlx.DB, log logger.Logger) StorageI {
+func NewStoragePg(db *pgxpool.Pool, log logger.Logger) StorageI {
 	return &StoragePg{
 		userRepo:    postgres.NewUser(db, log),
 		sessionRepo: postgres.NewSession(db, log),

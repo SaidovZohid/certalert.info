@@ -2,21 +2,21 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"time"
 
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type sessionRepo struct {
-	db  *sqlx.DB
+	db  *pgxpool.Pool
 	log logger.Logger
 }
 
-func NewSession(db *sqlx.DB, log logger.Logger) models.SessionStorageI {
+func NewSession(db *pgxpool.Pool, log logger.Logger) models.SessionStorageI {
 	return &sessionRepo{
 		db:  db,
 		log: log,
@@ -25,7 +25,7 @@ func NewSession(db *sqlx.DB, log logger.Logger) models.SessionStorageI {
 
 func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*models.Session, error) {
 	ses, err := s.GetSession(context.Background(), session.UserId, session.IpAddress, session.UserAgent)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
 	// if ses is nil create new session
@@ -48,6 +48,7 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 		`
 
 		err = s.db.QueryRow(
+			ctx,
 			query,
 			session.ID,
 			session.UserId,
@@ -79,6 +80,7 @@ func (s *sessionRepo) Session(ctx context.Context, session *models.Session) (*mo
 		WHERE user_id = $4 AND ip_address = $5 AND user_agent=$6
 	`
 	_, err = s.db.Exec(
+		ctx,
 		query,
 		session.ID,
 		session.AccessToken,
@@ -115,6 +117,7 @@ func (s *sessionRepo) GetSession(ctx context.Context, userId int64, ipAddress, D
 
 	var session models.Session
 	err := s.db.QueryRow(
+		ctx,
 		query,
 		userId,
 		ipAddress,
@@ -161,6 +164,7 @@ func (s *sessionRepo) GetSessionInfoByID(ctx context.Context, id string) (*model
 
 	var session models.Session
 	err := s.db.QueryRow(
+		ctx,
 		query,
 		id,
 	).Scan(
@@ -188,7 +192,7 @@ func (s *sessionRepo) DeleteSessionByID(ctx context.Context, id string) error {
 	query := `
 		DELETE FROM sessions WHERE id = $1
 	`
-	_, err := s.db.Exec(query, id)
+	_, err := s.db.Exec(ctx, query, id)
 	return err
 }
 
@@ -196,6 +200,6 @@ func (s *sessionRepo) DeleteSessionByUserID(ctx context.Context, id int64) error
 	query := `
 		DELETE FROM sessions WHERE user_id = $1
 	`
-	_, err := s.db.Exec(query, id)
+	_, err := s.db.Exec(ctx, query, id)
 	return err
 }

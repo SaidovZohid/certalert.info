@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/SaidovZohid/certalert.info/pkg/email"
 	"github.com/SaidovZohid/certalert.info/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v4"
 )
 
 func (h *handlerV1) HandleForgotPasswordPage(c *fiber.Ctx) error {
@@ -25,7 +25,7 @@ func (h *handlerV1) HandleForgotPassword(c *fiber.Ctx) error {
 	// email -> link -> link-verify -> open-password-create-web-page -> get-an-new-password -> update user password and redirect-to-login-page
 
 	user, err := h.strg.User().GetUserByEmail(context.Background(), req.Email)
-	if err != nil && errors.Is(err, sql.ErrNoRows) || user == nil {
+	if err != nil && errors.Is(err, pgx.ErrNoRows) || user == nil {
 		h.log.Error(err)
 		return c.Render("forgot_password/reset_pw_link", fiber.Map{
 			"error": "The provided email address does not exist in our records.",
@@ -107,7 +107,7 @@ func (h *handlerV1) HandleForgotPasswordVerify(c *fiber.Ctx) error {
 	}
 
 	user, err := h.strg.User().GetUserByEmail(context.Background(), payload.Email)
-	if err != nil && errors.Is(err, sql.ErrNoRows) || user == nil {
+	if err != nil && errors.Is(err, pgx.ErrNoRows) || user == nil {
 		h.log.Error(err)
 		return errors.New("user does not exist please check your email or create a free account in CertAlert")
 	}

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,6 +20,7 @@ import (
 	"github.com/SaidovZohid/certalert.info/storage/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/ipinfo/go/v2/ipinfo"
+	"github.com/jackc/pgx/v4"
 	"github.com/mssola/useragent"
 )
 
@@ -238,7 +238,7 @@ func TrackDomainsAdded(t *TrackDomainAdd) error {
 			UserID:     t.UserID,
 			DomainName: domain,
 		})
-		if (err != nil && !errors.Is(err, sql.ErrNoRows)) || hasDomainInDB != nil {
+		if (err != nil && !errors.Is(err, pgx.ErrNoRows)) || hasDomainInDB != nil {
 			t.Log.Error(err)
 			continue
 		}
@@ -292,7 +292,7 @@ func (h *handlerV1) CheckExistingDomains(userID int64, domains []string) error {
 			UserID:     userID,
 			DomainName: domain,
 		})
-		if (err != nil && errors.Is(err, sql.ErrNoRows)) || hasDomainInDB == nil {
+		if (err != nil && errors.Is(err, pgx.ErrNoRows)) || hasDomainInDB == nil {
 			h.log.Error(err)
 			continue
 		}

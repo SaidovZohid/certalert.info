@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/SaidovZohid/certalert.info/pkg/email"
 	"github.com/SaidovZohid/certalert.info/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v4"
 )
 
 func (h *handlerV1) HandleAccountPage(c *fiber.Ctx) error {
@@ -73,7 +73,7 @@ func (h *handlerV1) HandleChangeEmail(c *fiber.Ctx) error {
 	}
 
 	user, err := h.strg.User().GetUserByEmail(context.Background(), req.Email)
-	if !errors.Is(err, sql.ErrNoRows) || (user != nil) {
+	if !errors.Is(err, pgx.ErrNoRows) || (user != nil) {
 		h.log.Error(err)
 		return c.Render("account/change_email", fiber.Map{
 			"error": "Email address is already in use",

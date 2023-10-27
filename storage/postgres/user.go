@@ -5,15 +5,15 @@ import (
 
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type userRepo struct {
-	db  *sqlx.DB
+	db  *pgxpool.Pool
 	log logger.Logger
 }
 
-func NewUser(db *sqlx.DB, log logger.Logger) models.UserStorageI {
+func NewUser(db *pgxpool.Pool, log logger.Logger) models.UserStorageI {
 	return &userRepo{
 		db:  db,
 		log: log,
@@ -32,6 +32,7 @@ func (u *userRepo) CreateUser(ctx context.Context, user *models.User) (*models.U
 		RETURNING id, created_at
 	`
 	err := u.db.QueryRow(
+		ctx,
 		query,
 		user.FirstName,
 		user.LastName,
@@ -67,6 +68,7 @@ func (u *userRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 		FROM users WHERE email = $1
 	`
 	err := u.db.QueryRow(
+		ctx,
 		query,
 		email,
 	).Scan(
@@ -89,34 +91,34 @@ func (u *userRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 func (d *userRepo) UpdateUserLastPoll(ctx context.Context, userID int64) error {
 	query := `UPDATE users SET domains_last_check = CURRENT_TIMESTAMP WHERE id = $1`
 
-	_, err := d.db.Exec(query, userID)
+	_, err := d.db.Exec(ctx, query, userID)
 	return err
 }
 
 func (d *userRepo) UpdateUserLastPollToNULL(ctx context.Context, userID int64) error {
 	query := `UPDATE users SET domains_last_check = NULL WHERE id = $1`
 
-	_, err := d.db.Exec(query, userID)
+	_, err := d.db.Exec(ctx, query, userID)
 	return err
 }
 
 func (d *userRepo) UpdateUserPassword(ctx context.Context, userID int64, newPassword string) error {
 	query := `UPDATE users SET password = $1 WHERE id = $2`
 
-	_, err := d.db.Exec(query, newPassword, userID)
+	_, err := d.db.Exec(ctx, query, newPassword, userID)
 	return err
 }
 
 func (d *userRepo) UpdateUserEmail(ctx context.Context, userID int64, newEmailAddr string) error {
 	query := `UPDATE users SET email = $1 WHERE id = $2`
 
-	_, err := d.db.Exec(query, newEmailAddr, userID)
+	_, err := d.db.Exec(ctx, query, newEmailAddr, userID)
 	return err
 }
 
 func (d *userRepo) DeleteUser(ctx context.Context, userID int64) error {
 	query := `DELETE FROM users WHERE id = $1`
 
-	_, err := d.db.Exec(query, userID)
+	_, err := d.db.Exec(ctx, query, userID)
 	return err
 }

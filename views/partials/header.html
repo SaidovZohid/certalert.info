@@ -3,7 +3,13 @@
   <div
     class="max-w-[1250px] mx-auto px-4 py-4 flex items-center justify-between"
   >
-    <a class="text-[30px] text-gray-800 font-bold" href="/">CertAlert <span class="text-xl font-medium bg-gray-800 text-white px-2 py-0.5 rounded-lg text-center">beta</span></a>
+    <a class="text-[30px] text-gray-800 font-bold" href="/"
+      >CertAlert
+      <span
+        class="text-base font-medium bg-gray-800 text-white px-2 py-0.5 rounded-lg text-center"
+        >beta</span
+      ></a
+    >
     <div class="relative inline-block">
       <button
         id="dropdownDefaultButton"
@@ -72,9 +78,7 @@
 
         <!-- Menu Items -->
         <ul class="text-center pt-24 lg:pt-0 h-full">
-          <aside
-            class="w-[100%] text-gray-600 px-4 pt-8"
-          >
+          <aside class="w-[100%] text-gray-600 px-4 pt-8">
             <a
               href="/domains"
               class="flex text-xl font-medium mb-2 hover:bg-gray-200 p-1 rounded-lg transition-colors duration-300 ease-in-out"
@@ -234,9 +238,9 @@
 
   // Toggle dropdown when email button is clicked
   dropdownButton.addEventListener("click", () => {
-    console.log("I am here when you press email")
-    dropdownMenu.classList.toggle("hidden")
-  })
+    console.log("I am here when you press email");
+    dropdownMenu.classList.toggle("hidden");
+  });
 
   // Close dropdown when clicking outside
   document.addEventListener("click", (event) => {

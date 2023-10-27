@@ -6,15 +6,15 @@ import (
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/pkg/ssl"
 	"github.com/SaidovZohid/certalert.info/storage/models"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type domainRepo struct {
-	db  *sqlx.DB
+	db  *pgxpool.Pool
 	log logger.Logger
 }
 
-func NewDomain(db *sqlx.DB, log logger.Logger) models.DomainStorageI {
+func NewDomain(db *pgxpool.Pool, log logger.Logger) models.DomainStorageI {
 	return &domainRepo{
 		db:  db,
 		log: log,
@@ -45,6 +45,7 @@ func (d *domainRepo) CreateTrackingDomain(ctx context.Context, domainInfo *ssl.D
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) RETURNING id
 	`
 	err := d.db.QueryRow(
+		ctx,
 		query,
 		domainInfo.DomainName,
 		domainInfo.UserID,
@@ -96,7 +97,7 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainName(ctx context.Context, domai
 			error
 		FROM tracking_domains WHERE user_id=$1 AND domain=$2
 	`
-	err := d.db.QueryRow(query, domain.UserID, domain.DomainName).Scan(
+	err := d.db.QueryRow(ctx, query, domain.UserID, domain.DomainName).Scan(
 		&domain.ID,
 		&domain.RemoteAddr,
 		&domain.Issuer,
@@ -146,7 +147,7 @@ func (d *domainRepo) GetDomainsWithUserID(ctx context.Context, userId int64) ([]
 		FROM tracking_domains
 		WHERE user_id = $1
 	`
-	res, err := d.db.Query(query, userId)
+	res, err := d.db.Query(ctx, query, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +189,7 @@ func (d *domainRepo) DeleteTrackingDomains(ctx context.Context, userID int64, do
 	query := "DELETE FROM tracking_domains WHERE user_id = $1 AND id = $2"
 
 	for _, v := range domainsId {
-		_, err := d.db.Exec(query, userID, v)
+		_, err := d.db.Exec(ctx, query, userID, v)
 		if err != nil {
 			return err
 		}
@@ -200,7 +201,7 @@ func (d *domainRepo) DeleteTrackingDomains(ctx context.Context, userID int64, do
 func (d *domainRepo) DeleteTrackingDomain(ctx context.Context, userID int64, domainId int64) error {
 	query := "DELETE FROM tracking_domains WHERE user_id = $1 AND id = $2"
 
-	_, err := d.db.Exec(query, userID, domainId)
+	_, err := d.db.Exec(ctx, query, userID, domainId)
 	if err != nil {
 		return err
 	}
@@ -228,7 +229,7 @@ func (d *domainRepo) UpdateExistingDomainInfo(ctx context.Context, domainInfo *s
 		issued = $16
 	WHERE user_id = $17 AND id = $18
 	`
-	_, err := d.db.Exec(query, domainInfo.RemoteAddr, domainInfo.Issuer, domainInfo.SignatureAlgo, domainInfo.PublicKeyAlgo, domainInfo.EncodedPEM, domainInfo.PublicKey, domainInfo.Signature, domainInfo.DNSNames, domainInfo.KeyUsage, domainInfo.ExtKeyUsages, domainInfo.Expires, domainInfo.Status, domainInfo.LastPollAt, domainInfo.Latency, domainInfo.Error, domainInfo.Issued, domainInfo.UserID, domainInfo.ID)
+	_, err := d.db.Exec(ctx, query, domainInfo.RemoteAddr, domainInfo.Issuer, domainInfo.SignatureAlgo, domainInfo.PublicKeyAlgo, domainInfo.EncodedPEM, domainInfo.PublicKey, domainInfo.Signature, domainInfo.DNSNames, domainInfo.KeyUsage, domainInfo.ExtKeyUsages, domainInfo.Expires, domainInfo.Status, domainInfo.LastPollAt, domainInfo.Latency, domainInfo.Error, domainInfo.Issued, domainInfo.UserID, domainInfo.ID)
 	if err != nil {
 		return err
 	}
@@ -260,7 +261,7 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainID(ctx context.Context, userID 
 			error
 		FROM tracking_domains WHERE user_id=$1 AND id=$2
 	`
-	err := d.db.QueryRow(query, userID, domainID).Scan(
+	err := d.db.QueryRow(ctx, query, userID, domainID).Scan(
 		&domain.ID,
 		&domain.DomainName,
 		&domain.RemoteAddr,

@@ -2,3 +2,4 @@ vendor/
 .env
 node_modules
 logs/
+go.sum

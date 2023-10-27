@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/SaidovZohid/certalert.info/pkg/utils"
 	"github.com/SaidovZohid/certalert.info/storage/models"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v4"
 )
 
 // handles signup page rendering
@@ -44,7 +44,7 @@ func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 	}
 
 	user, err := h.strg.User().GetUserByEmail(context.Background(), req.Email)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) || user != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) || user != nil {
 		h.log.Error(err)
 		return c.Render("signup/index", fiber.Map{
 			"error": "Email already used.",
@@ -122,7 +122,7 @@ func (h *handlerV1) HandleVerifyUserSignUp(c *fiber.Ctx) error {
 	}
 
 	user, err := h.strg.User().GetUserByEmail(context.Background(), payload.Email)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) || user != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) || user != nil {
 		h.log.Error(err)
 		return errors.New("token invalid or email already verified")
 	}
@@ -220,7 +220,7 @@ func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 
 	var id int64
 	user, err := h.strg.User().GetUserByEmail(context.Background(), data.Email)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		h.log.Error(err)
 		return errors.New("something went unexpected")
 	}

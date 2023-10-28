@@ -267,7 +267,6 @@ func (h *handlerV1) HandleCheckDomains(c *fiber.Ctx) error {
 	return c.Send([]byte(fmt.Sprintf(htmlCode, "Domain checks have been successfully completed. Please refresh the page to view the updated results!")))
 }
 
-// TODO: It should be like this if domain does not belong to user do not show it!
 func (h *handlerV1) HandleDomainInfoShowPage(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id", ""))
 	if err != nil {

@@ -16,9 +16,11 @@ type Config struct {
 	AuthCookieNameCertAlert     string
 	Redis                       string
 	LocationInfoKey             string
+	TelegramApiToken            string
 	SignUPLinkTokenTime         time.Duration
 	ForgotPasswordLinkTokenTime time.Duration
 	UpdateEmailLinkTokenTime    time.Duration
+	PullUpdateDomainInterval    time.Duration
 	Postgres                    Postgres
 	Google                      Google
 	Smtp                        Smtp
@@ -54,7 +56,7 @@ func Load() Config {
 		AuthCookieNameCertAlert:     conf.GetString("AUTH_COOKIE_NAME_CERTALERT"),
 		SignUPLinkTokenTime:         conf.GetDuration("SIGNUP_TOKEN_LINK_DURATION"),
 		ForgotPasswordLinkTokenTime: conf.GetDuration("FORGOT_PASSWORD_TOKEN_LINK_DURATION"),
-		UpdateEmailLinkTokenTime: conf.GetDuration("UPDATE_EMAIL_TOKEN_LINK_DURATION"),
+		UpdateEmailLinkTokenTime:    conf.GetDuration("UPDATE_EMAIL_TOKEN_LINK_DURATION"),
 		Redis:                       conf.GetString("REDIS_ADDR"),
 		LocationInfoKey:             conf.GetString("LOCATION_INFO_KEY"),
 		Postgres: Postgres{
@@ -80,5 +82,7 @@ func Load() Config {
 			Sender:   conf.GetString("SMTP_SENDER"),
 			Password: conf.GetString("SMTP_PASSWORD"),
 		},
+		PullUpdateDomainInterval: conf.GetDuration("PULL_UPDATE_DOMAIN_INTERVAL"),
+		TelegramApiToken:         conf.GetString("TELEGRAM_APITOKEN"),
 	}
 }

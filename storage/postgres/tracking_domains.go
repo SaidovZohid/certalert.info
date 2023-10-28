@@ -287,3 +287,58 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainID(ctx context.Context, userID 
 
 	return &domain, nil
 }
+
+func (d *domainRepo) GetListofDomainsThatExists(ctx context.Context) ([]string, error) {
+	query := `
+		SELECT DISTINCT domain
+		FROM tracking_domains; 
+	`
+
+	res, err := d.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Close()
+	response := make([]string, 0)
+	var domainName string
+	for res.Next() {
+		err := res.Scan(
+			&domainName,
+		)
+		if err != nil {
+			d.log.Error(err)
+			continue
+		}
+		response = append(response, domainName)
+	}
+
+	return response, nil
+}
+
+func (d *domainRepo) UpdateAllTheSameDomainsInfo(ctx context.Context, domainInfo *ssl.DomainTracking) error {
+	query := `UPDATE tracking_domains SET 
+		remote_address = $1,
+		issuer = $2,
+		signature_algo = $3,
+		public_key_algo = $4,
+		encoded_pem = $5,
+		public_key = $6,
+		signature = $7,
+		dns_names = $8,
+		key_usage = $9,
+		ext_key_usages = $10,
+		expires = $11,
+		status = $12,
+		last_poll_at = $13,
+		latency = $14,
+		error = $15,
+		issued = $16
+	WHERE domain = $17
+	`
+	_, err := d.db.Exec(ctx, query, domainInfo.RemoteAddr, domainInfo.Issuer, domainInfo.SignatureAlgo, domainInfo.PublicKeyAlgo, domainInfo.EncodedPEM, domainInfo.PublicKey, domainInfo.Signature, domainInfo.DNSNames, domainInfo.KeyUsage, domainInfo.ExtKeyUsages, domainInfo.Expires, domainInfo.Status, domainInfo.LastPollAt, domainInfo.Latency, domainInfo.Error, domainInfo.Issued, domainInfo.DomainName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

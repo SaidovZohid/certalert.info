@@ -1,5 +1,5 @@
-[ ] Every 7 Minutes
-    [ ] Before MVP: Get all different domains, not the same domains from database and if domains are the same, system should update the domain info of all users.
+[v] Every 10 Minutes
+    [v] Before MVP: Get all different domains, not the same domains from database and if domains are the same, system should update the domain info of all users.
 [ ] Integrations Page
     [ ] Telegram Bot:
         1. Before MVP: User integrated within bot should get alerts on domains expiration dates.
@@ -17,3 +17,6 @@
     [ ] Schedule: 
         1. Before MVP: One, Three, Seven, Fourteen, Twenty, Thirty, Sixty days before expiry
     [ ] Turn On/Off notification types.
+[ ] Landing Page
+[ ] Privacy/Term-Of-Conditions Pages
+[ ] FAQ 

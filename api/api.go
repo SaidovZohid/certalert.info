@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -143,6 +144,8 @@ func New(opt *RoutetOptions) *fiber.App {
 
 		// Convert the time to the user's local time zone.
 		localTime := tm.In(loc)
+		log.Println(localTime)
+		log.Println(loc)
 
 		// Format the local time.
 		timeFormatted := localTime.Format(time.RFC1123)

@@ -23,11 +23,11 @@ func main() {
 
 	cfg := config.Load()
 	log.Info("config initialized")
-	databaseUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		cfg.Postgres.Host,
-		cfg.Postgres.Port,
+	databaseUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.Postgres.User,
 		cfg.Postgres.Password,
+		cfg.Postgres.Host,
+		cfg.Postgres.Port,
 		cfg.Postgres.Database,
 	)
 
@@ -58,16 +58,17 @@ func main() {
 		InMemory: inMemory,
 	})
 
-	go func() {
+	go func(bot *tgbotapi.BotAPI) {
 		log.Info("Initializing regular domain information update...")
 
 		// Initiate the function to update domain information regularly
-		utils.UpdateDomainInformationRegularly(context.Background(), strg, log, &cfg)
-	}()
+		updateReg := utils.NewUpdateReg(strg, log, &cfg, bot)
+		updateReg.UpdateDomainInformationRegularly(context.Background())
+	}(bot)
 	go func() {
 		log.Info("Initializing and starting the Telegram bot...")
 
-		telegramBot := telegram.NewBot(bot, &log, &cfg)
+		telegramBot := telegram.NewBot(bot, &log, &cfg, strg)
 
 		if err := telegramBot.Start(); err != nil {
 			log.Fatal(fmt.Sprintf("Error while starting bot: %v", err))

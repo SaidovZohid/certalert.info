@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "domains_last_check" TIMESTAMP,
     "max_domains_tracking" INT,
     "user_accepted_terms" BOOLEAN,
-    "created_at" TIMESTAMP DEFAULT timezone('Asia/Tashkent', CURRENT_TIMESTAMP) NOT NULL
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "sessions" (
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS "sessions" (
     "timezone" VARCHAR NOT NULL,
     "is_blocked" BOOLEAN NOT NULL DEFAULT false,
     "last_login" TIMESTAMP NOT NULL,
-    "created_at"  TIMESTAMP DEFAULT timezone('Asia/Tashkent', CURRENT_TIMESTAMP) NOT NULL
+    "created_at"  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "tracking_domains" (
@@ -47,4 +47,28 @@ CREATE TABLE IF NOT EXISTS "tracking_domains" (
     "last_poll_at" TIMESTAMP,
     "latency" BIGINT,
     "error" VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS "telegram_users" (
+    "id" BIGSERIAL PRIMARY KEY,
+    "user_id" BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    "chat_id" BIGINT NOT NULL,
+    "telegram_user_id" BIGINT, 
+    "lang" VARCHAR,
+    "step" VARCHAR NOT NULL,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    UNIQUE ("user_id", "telegram_user_id")
+);
+
+CREATE TABLE IF NOT EXISTS "notifications" (
+    "user_id" BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    "expiry_alerts" BOOLEAN DEFAULT true,
+    "change_alerts" BOOLEAN DEFAULT true,
+    "before" INT DEFAULT 30, -- one, three, seven, fourteen, twenty, thirty, sixty
+    "email_alert" BOOLEAN DEFAULT true, 
+    "telegram_alert" BOOLEAN DEFAULT false,
+    "slack_alert" BOOLEAN DEFAULT false,
+    "discord_alert" BOOLEAN DEFAULT false,
+    "microsoft_team_alert" BOOLEAN DEFAULT false, 
+    "last_alert_time" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

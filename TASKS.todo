@@ -1,0 +1,39 @@
+[v] Every 180 Minutes. Get all different domains, not the same domains from database and if domains are the same, system should update the domain info of all users.
+[ ] Integrations Page
+    [ ] Telegram Bot: Before MVP: User integrated within bot should get alerts on domains expiration dates.
+    [ ] Slack: Before MVP: Get alerts
+    [ ] Discord Bot: After MVP: Get alert
+    [ ] Microsoft Team: After MVP: Get alerts
+[ ] Notification Page
+    [ ] Types of Alerts: Before MVP: Expiry Alerts and Change Alerts
+    [ ] Schedule: Before MVP: One, Three, Seven, Fourteen, Twenty, Thirty, Sixty days before expiry
+    [ ] Turn On/Off notification types.
+[ ] Landing Page
+[ ] Privacy/Term-Of-Conditions Pages
+[ ] FAQ
+[ ] Fix the bug of in pulling and updating domains is not working correctly. It's making some domains unresponsive status.
+
+
+# - Example domain names:  
+google.com facebook.com microsoft.com amazon.com github.com
+wikipedia.org apple.com twitter.com youtube.com linkedin.com
+instagram.com reddit.com netflix.com pinterest.com yahoo.com
+wordpress.org stackoverflow.com adobe.com dropbox.com slack.com
+soundcloud.com airbnb.com medium.com twitch.tv zoom.us
+ebay.com spotify.com whatsapp.com tumblr.com vimeo.com
+craigslist.org quora.com wordpress.com imdb.com snapchat.com
+microsoftonline.com bbc.co.uk etsy.com nytimes.com bloomberg.com
+wired.com stackexchange.com aliexpress.com espn.com nasa.gov
+buydomains.com wsj.com airbnb.co.in udemy.com cisco.com
+oracle.com salesforce.com pexels.com nih.gov mozilla.org
+bitly.com behance.net dribbble.com grubhub.com ubereats.com
+adweek.com giphy.com npr.org nationalgeographic.com theatlantic.com
+theguardian.com time.com fortune.com wired.co.uk vogue.com
+washingtonpost.com economist.com wired.co.uk vogue.com washingtonpost.com
+economist.com theatlantic.com forbes.com fastcompany.com inc.com
+entrepreneur.com venturebeat.com wired.co.uk bloomberg.com reuters.com
+mashable.com techcrunch.com thenextweb.com zdnet.com businessinsider.com
+fortune.com axios.com theverge.com engadget.com mashable.com
+techcrunch.com forbes.com cnbc.com venturebeat.com theguardian.com
+# - 
+gumtree.com pbs.org ampclicks.com androidcentral.com gazzetta.it friv.com cbs.com tutorialspoint.com tutsplus.com 123rf.com infobae.com junbi-tracker.com persianblog.ir makeuseof.com donanimhaber.com indianexpress.com yodobashi.com mackolik.com sonyentertainmentnetwork.com theblaze.com quizlet.com dafont.com yaplakal.com douyutv.com 189.cn feng.com salon.com ukr.net marktplaats.nl popmog.com apache.org getbootstrap.com cliponyu.com efix.com 24h.com.vn rakuten.ne.jp yam.com techradar.com suara.com itau.com.br harvard.eduleadpages.net iflscience.com sahadan.com conduit.com imagebam.com ad131m.com jquery.com wowhead.com smh.com.au sporx.com 6park.com gittigidiyor.com 2chblog.jp blomaga.jp envato.com google.com.ec getpocket.com olx.ua mediaset.it google.co.ve freelancer.com investing.com deezer.com intel.com yomiuri.co.jp sfglobe.com tribunnews.com gamer.com.tw bt.com mydrivers.com viva.co.id 2ch-c.net  lx.co.id correios.com.br rtl.de marriott.com blackhatworld.com sharepoint.com accountonline.com idnes.cz yadi.sk theatlantic.com 52pk.net mpnrs.com meituan.com ytimg.com tripadvisor.co.uk klikbca.com paidverts.com clipconverter.ccfandango.com bufferapp.com brainyquote.com narod.ru inc.com excite.co.jpgetresponse.commbc.netsearchengineland.com.is who.is hollywoodreporter.com nasa.gov joomla.org 104.com.tw forever21.com turboloves.net wayfair.com ldblog.jp tokopedia.com chiphell.com zomato.com homeway.com.cn walmart.com.br fanfiction.net ea.com tesco.com ebay.ca dhgate.com elfagr.org miniinthebox.com cam4.com heise.de hilton.com dict.cc vox.com dx.com  videomega.tv cnmo.com rakuten.com wiley.com inquisitr.com  jumia.com.ng arstechnica.com skysports.com jagran.com ozon.ru ibtimes.com gumtree.com.au google.com.do bidvertiser.com idealo.de pole-emploi.fr  dropboxusercontent.com today.com whitepages.com merdeka.com scoopwhoop.com censor.net.ua walgreens.com nesn.com babylon.com google.lt cpasbien.pw ilmeteo.it givemesport.com aftonbladet.se wiocha.pl torrentz.com images-amazon.com hindustantimes.com abc.net.au elegantthemes.com indiegogo.com gofundme.com rarbg.com usnews.com audible.com bukalapak.com iciba.com rackcdn.com ulmart.ru windowsphone.com mangahere.co acesse.com webmoney.ru redfin.com tabnak.ir digitaltrends.com dribbble.com gigazine.net clickbank.com default-search.net carview.co.jp worldstarhiphop.com ptt.cc ocn.ne.jp stafaband.info macrumors.com telegraaf.nl ad4game.com discuss.com.hk citrixonline.com souq.com eenadu.net webcrawler.commydala.com todayhumor.co.kr ahrefs.com vip.com watchseries.lt aeriagames.com brassring.com namecheap.com fishki.net 114la.com o2.pl bankmellat.ir credit-agricole.fr vg.no gamestop.com howstuffworks.com state.gov weheartit.com fh21.com.cn researchgate.net nikkeibp.co.jp gismeteo.ru nouvelobs.com similarweb.com spankwire.com hgtv.com sephora.com zopim.com americanas.com.br microsoftstore.com bitbucket.org discogs.com playbuzz.com servingspot.com auto.ru pixlr.com nu.nl bizjournals.com ebay.es graphicriver.net buscape.com.br clixsense.com cocolog-nifty.com ad124m.com xiami.com over-blog.com 360doc.com programme-tv.net linternaute.com bandcamp.com video-one.com zougla.gr fotolia.com ed.gov adk2.net prezi.com hatenablog.com mbank.com.pl ryanair.com 20minutes.fr thenextweb.com yourlust.com askubuntu.com axisbank.com crunchbase.com thechive.com reallifecam.com doodle.com jalopnik.com tripadvisor.in nocookie.net pcworld.com beytoote.com lynda.com welt.de xtube.com dpreview.com netteller.comlacaixa.es garanti.com.tr 4pda.ru phonearena.com wetter.com ly.net super.cz argos.co.uk codeproject.com haberturk.com pixabay.com biblegateway.com vcommission.com creditkarma.com autoscout24.de shaparak.ir abc.es premierleague.com postimg.org qidian.com turbobit.net orbitz.com jsfiddle.netcloudflare.com ctrip.com chefkoch.de filmweb.plkioskea.net staticflickr.com gnavi.co.jp searchengines.guru sozcu.com.tr opentable.combedbathandbeyond.com otto.delivingsocial.comlist-manage1.com bankrate.com jcpenney.com ning.com sape.ru gamersky.com mgid.com complex.com wattpad.com grooveshark.com finn.no lego.com interpark.com alarabiya.net camdolls.com digitalocean.com opensubtitles.org sitepoint.com citibank.co.in pravda.com.ua oldpiratebay.org toysrus.com food.com mlb.com nextmedia.com littlethings.com jeuxvideo.com 500px.com junglee.com leo.org websta.me templatemonster.com tubexclips.com kp.ru drugs.com internethaber.com seekingalpha.com gilt.com megafilmeshd.net zeroredirect1.com jin115.com cc.com billboard.com sweet-page.com tgbus.com lotour.com city-data.com hepsiburada.com nosub.tv

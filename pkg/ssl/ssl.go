@@ -118,7 +118,6 @@ func PollDomain(ctx context.Context, domain string) (*TrackingDomainInfo, error)
 		pubAlgo := cert.PublicKeyAlgorithm.String()   // Get the public key algorithm
 		sigAlgo := cert.SignatureAlgorithm.String()   // Get the signature algorithm
 		rmtAddr := conn.RemoteAddr().String()         // Get the remote address of the connection
-
 		// Create and send a 'TrackingDomainInfo' object through the channel
 		resultch <- TrackingDomainInfo{
 			RemoteAddr:    &rmtAddr,

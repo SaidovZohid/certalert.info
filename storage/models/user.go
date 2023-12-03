@@ -13,6 +13,7 @@ type UserStorageI interface {
 	UpdateUserPassword(ctx context.Context, userID int64, newPassword string) error
 	DeleteUser(ctx context.Context, userID int64) error
 	UpdateUserEmail(ctx context.Context, userID int64, newEmailAddr string) error
+	GetUserByID(ctx context.Context, id int64) (*User, error)
 }
 
 type User struct {

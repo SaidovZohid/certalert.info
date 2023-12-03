@@ -148,6 +148,10 @@ func (h *handlerV1) HandleVerifyUserSignUp(c *fiber.Ctx) error {
 		h.log.Error(err)
 		return errors.New("try again, something went wrong")
 	}
+	if err := h.strg.Notifications().CreateNotificationRow(context.Background(), user.ID); err != nil {
+		h.log.Error(err)
+		return errors.New("failed to create new user")
+	}
 
 	return c.Redirect("/login")
 }
@@ -245,6 +249,11 @@ func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 			return errors.New("failed to create new user")
 		}
 		id = userCreated.ID
+		if err := h.strg.Notifications().CreateNotificationRow(context.Background(), id); err != nil {
+			h.log.Error(err)
+			return errors.New("failed to create new user")
+		}
+
 	} else {
 		id = user.ID
 	}

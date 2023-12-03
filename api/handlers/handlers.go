@@ -233,13 +233,13 @@ func TrackDomainsAdded(t *TrackDomainAdd) error {
 		workers = make(chan struct{}, 15)
 		wg      = sync.WaitGroup{}
 	)
+	defer close(workers)
 	for _, domain := range t.Domains {
 		hasDomainInDB, err := t.Strg.Domain().GetDomainWithUserIDAndDomainName(context.Background(), &ssl.DomainTracking{
 			UserID:     t.UserID,
 			DomainName: domain,
 		})
 		if (err != nil && !errors.Is(err, pgx.ErrNoRows)) || hasDomainInDB != nil {
-			t.Log.Error(err)
 			continue
 		}
 		wg.Add(1)
@@ -283,7 +283,6 @@ func (h *handlerV1) CheckExistingDomains(userID int64, domains []string) error {
 		wg                = sync.WaitGroup{}
 		mutex             = sync.Mutex{}
 		domainInfoUpdates []ssl.DomainTracking // Slice to store domain info updates
-
 	)
 
 	responseChannel := make(chan ssl.DomainTracking, len(domains))
@@ -292,6 +291,7 @@ func (h *handlerV1) CheckExistingDomains(userID int64, domains []string) error {
 			UserID:     userID,
 			DomainName: domain,
 		})
+
 		if (err != nil && errors.Is(err, pgx.ErrNoRows)) || hasDomainInDB == nil {
 			h.log.Error(err)
 			continue
@@ -310,12 +310,6 @@ func (h *handlerV1) CheckExistingDomains(userID int64, domains []string) error {
 			if err != nil {
 				h.log.Error(err)
 				return
-			}
-
-			responseChannel <- ssl.DomainTracking{
-				UserID:             userID,
-				ID:                 id,
-				TrackingDomainInfo: *info,
 			}
 
 			_ = info

@@ -19,7 +19,7 @@ type SendEmailRequest struct {
 const (
 	VerificationEmail   = "verification_email"
 	ForgotPasswordEmail = "forgot_password_email"
-	ChangeEmail = "change_email"
+	ChangeEmail         = "change_email"
 )
 
 func SendEmail(cfg *config.Config, req *SendEmailRequest) error {

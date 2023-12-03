@@ -64,9 +64,9 @@
       <h3>Sign out</h3></a
     >
   </aside>
-  <main class="w-full h-screen">
+  <main class="w-full md:h-screen mx-3">
     <!-- Content for Menu Item 1 -->
-    <div class="content text-black my-8 mx-5 w-full" id="menu-item-1">
+    <div class="content text-black my-8 w-full" id="menu-item-1">
       <!-- table -->
       {% if domains %}
       <div
@@ -74,10 +74,10 @@
       >
         <div>
           <h2 class="text-2xl font-bold mb-1 max-[850px]:text-center">
-            Monitoring domains
+            Tracking domains
           </h2>
           <p class="text-gray-700 font-medium max-[850px]:text-center">
-            Certificates that are currently being monitored
+            Certificates that are currently being tracked
           </p>
         </div>
         <div
@@ -89,7 +89,7 @@
               id="stopMonitoringButton"
               class="bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-white px-4 py-2 max-[500px]:px-2 text-base rounded-md shadow-md transition-colors duration-300 ease-in-out hidden"
             >
-              Stop Monitoring
+              Stop Tracking
             </button>
           </div>
           {% if hasAnUpgrade %}
@@ -118,7 +118,13 @@
             </button>
           </form>
           {% endif %}
-          <button
+          <a
+            href="https://t.me/idleprogrammer"
+            target="_blank"
+            class="py-2.5 px-5 max-[500px]:px-3 mr-2 max-[500px]:mr-0 text-sm font-medium bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 inline-flex items-center focus:ring-4 focus:outline-none focus:ring-[#212529]/50"
+            >Follow to my telegram channel</a
+          >
+          <!-- <button
             hx-get="/domains/check"
             hx-swap="outerHTML"
             id="checkAllCertificatesButton"
@@ -144,7 +150,7 @@
               </svg>
             </span>
             Check Certificates Now
-          </button>
+          </button> -->
         </div>
       </div>
       <!-- for showing search input -->
@@ -203,7 +209,7 @@
               id="confirmButton"
               class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-300 ease-in-out"
             >
-              Stop Monitoring
+              Stop Tracking
             </button>
           </div>
         </div>
@@ -461,10 +467,10 @@
   // Function to make a request to stop monitoring
   async function stopMonitoring() {
     const selectedDomainNames = getSelectedDomains();
-    if (selectedDomainNames.length === 0){
+    if (selectedDomainNames.length === 0) {
       console.log("No domains selected");
       return;
-  }
+    }
 
     try {
       const response = await fetch("/domains/stop", {

@@ -14,6 +14,7 @@ type DomainStorageI interface {
 	DeleteTrackingDomains(ctx context.Context, userID int64, domainsID []string) error
 	UpdateExistingDomainInfo(ctx context.Context, domainInfo *ssl.DomainTracking) error
 	DeleteTrackingDomain(ctx context.Context, userID int64, domainId int64) error
-	GetListofDomainsThatExists(ctx context.Context) ([]string, error)
+	GetListofDomainsThatExists(ctx context.Context) ([]*ssl.DomainTracking, error)
 	UpdateAllTheSameDomainsInfo(ctx context.Context, domainInfo *ssl.DomainTracking) error
+	GetListofUsersThatDomainExists(ctx context.Context, domain string) ([]int64, error)
 }

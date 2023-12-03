@@ -88,6 +88,44 @@ func (u *userRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 	return &result, nil
 }
 
+func (u *userRepo) GetUserByID(ctx context.Context, id int64) (*models.User, error) {
+	var (
+		result models.User
+	)
+
+	query := `
+		SELECT 
+			id,
+			first_name,
+			last_name,
+			email,
+			password,
+			domains_last_check,
+			max_domains_tracking,
+			created_at
+		FROM users WHERE id = $1
+	`
+	err := u.db.QueryRow(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&result.ID,
+		&result.FirstName,
+		&result.LastName,
+		&result.Email,
+		&result.Password,
+		&result.LastPollAt,
+		&result.MaxDomainsTracking,
+		&result.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 func (d *userRepo) UpdateUserLastPoll(ctx context.Context, userID int64) error {
 	query := `UPDATE users SET domains_last_check = CURRENT_TIMESTAMP WHERE id = $1`
 

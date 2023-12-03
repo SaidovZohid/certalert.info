@@ -1,0 +1,111 @@
+package utils
+
+
+// UpdateDomainInformationRegularly fetches information about domains at regular intervals
+// of x minutes, pausing in between iterations.
+func UpdateDomainInformationRegularly(ctx context.Context, strg storage.StorageI, log logger.Logger, cfg *config.Config, bot *tgbotapi.BotAPI) {
+	// Create a ticker that triggers every 7 minutes
+	ticker := time.NewTicker(cfg.PullUpdateDomainInterval)
+
+	// Defer the stopping of the ticker to avoid leaks
+	defer ticker.Stop()
+
+	// Run the domain information update loop
+	for {
+		select {
+		case <-ctx.Done():
+			log.Info("UpdateDomainInformationRegularly has been canceled!")
+			return // If the context is canceled, exit the function
+		case <-ticker.C:
+			log.Println("Domain information update started")
+
+			usersDomains := make(map[int64][]*DomainNowAndPreviousInfo)
+			var (
+				workers = make(chan struct{}, 15)
+				wg      = sync.WaitGroup{}
+			)
+			defer close(workers)
+			// Perform the domain information update logic here
+			// Fetch information about various domains
+			domains, err := strg.Domain().GetListofDomainsThatExists(ctx)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+			// log.Println(len(domains))
+			// for _, v := range domains {
+			// 	fmt.Printf("%v ", v)
+			// }
+			// var (
+			// 	responseChan = make(chan *ssl.DomainTracking, len(domains))
+			// )
+			for _, domain := range domains {
+				wg.Add(1)
+				go func(domain string) {
+				ctxPull, cancel := context.WithTimeout(context.Background(), time.Second*5)
+				// workers <- struct{}{}
+				// defer func() {
+				// 	<-workers
+				// 	wg.Done()
+				// 	cancel()
+				// }()
+				domainInfo, err := ssl.PollDomain(ctxPull, domain.DomainName)
+				if err != nil {
+					log.Error("Failed to poll domain", domain, ":", err)
+					cancel()
+					continue
+				}
+
+				userIds, err := strg.Domain().GetListofUsersThatDomainExists(ctx, domain.DomainName)
+				if err != nil {
+					log.Errorf("Failed to get list of users id that %v domain exists: %v", domain, err)
+					cancel()
+					continue
+				}
+				// log.Println(userIds)
+				for _, userId := range userIds {
+					usersDomains[userId] = append(usersDomains[userId], &DomainNowAndPreviousInfo{
+						DomainName: domain.DomainName,
+						Current:    domainInfo,
+						Prev:       &domain.TrackingDomainInfo,
+					})
+				}
+
+				err = strg.Domain().UpdateAllTheSameDomainsInfo(context.Background(), &ssl.DomainTracking{
+					DomainName:         domain.DomainName,
+					TrackingDomainInfo: *domainInfo,
+				})
+				if err != nil {
+					log.Error("Failed to update domain", domain, "information in the database:", err)
+					cancel()
+					continue
+
+				}
+				cancel()
+
+				// responseChan <- &ssl.DomainTracking{
+				// 	DomainName:         domain,
+				// 	TrackingDomainInfo: *domainInfo,
+				// }
+				}(domain)
+				// log.Println(domain)
+			}
+			// wg.Wait()
+
+			// close(responseChan)
+
+			// for domainInfo := range responseChan {
+			// 	err = strg.Domain().UpdateAllTheSameDomainsInfo(ctx, domainInfo)
+			// 	if err != nil {
+			// 		log.Error("Failed to update domain", domainInfo.DomainName, "information in the database:", err)
+			// 	}
+			// }
+			// for k, v := range usersDomains {
+			// 	log.Infof("UserID - %v - Domain Count - %v\n", k, len(v))
+			// 	lookThroughDomainInfoAndExpiryAndChange(k, v, strg, log, bot)
+			// }
+
+			log.Info("Successfully pulled info and updated!")
+		}
+	}
+}

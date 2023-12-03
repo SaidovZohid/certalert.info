@@ -217,7 +217,7 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Get("/domains/add", handlers.AuthMiddleware, handlers.AddNewDomainsPage)
 	app.Delete("/domains/stop", handlers.AuthMiddleware, handlers.HandleStopMonitoringDomains)
 	app.Post("/domains/stop/:id", handlers.AuthMiddleware, handlers.HandleStopMonitoringDomain)
-	app.Get("/domains/check", handlers.AuthMiddleware, handlers.HandleCheckDomains)
+	// app.Get("/domains/check", handlers.AuthMiddleware, handlers.HandleCheckDomains)
 	app.Get("/domains/more/:id", handlers.AuthMiddleware, handlers.HandleDomainInfoShowPage)
 	app.Get("/domains/pem/:id", handlers.AuthMiddleware, handlers.HandleShowEncodedPEM)
 

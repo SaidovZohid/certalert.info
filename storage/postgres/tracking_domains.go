@@ -288,10 +288,27 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainID(ctx context.Context, userID 
 	return &domain, nil
 }
 
-func (d *domainRepo) GetListofDomainsThatExists(ctx context.Context) ([]string, error) {
+func (d *domainRepo) GetListofDomainsThatExists(ctx context.Context) ([]*ssl.DomainTracking, error) {
 	query := `
-		SELECT DISTINCT domain
-		FROM tracking_domains; 
+		SELECT DISTINCT 
+			domain, 
+			remote_address,
+			issuer,
+			signature_algo,
+			public_key_algo,
+			encoded_pem,
+			public_key,
+			signature,
+			dns_names,
+			key_usage,
+			ext_key_usages,
+			issued,
+			expires,
+			status,
+			last_poll_at,
+			latency,
+			error
+		FROM tracking_domains
 	`
 
 	res, err := d.db.Query(ctx, query)
@@ -299,17 +316,33 @@ func (d *domainRepo) GetListofDomainsThatExists(ctx context.Context) ([]string, 
 		return nil, err
 	}
 	defer res.Close()
-	response := make([]string, 0)
-	var domainName string
+	response := make([]*ssl.DomainTracking, 0)
 	for res.Next() {
+		var domainInfo ssl.DomainTracking
 		err := res.Scan(
-			&domainName,
+			&domainInfo.DomainName,
+			&domainInfo.RemoteAddr,
+			&domainInfo.Issuer,
+			&domainInfo.SignatureAlgo,
+			&domainInfo.PublicKeyAlgo,
+			&domainInfo.EncodedPEM,
+			&domainInfo.PublicKey,
+			&domainInfo.Signature,
+			&domainInfo.DNSNames,
+			&domainInfo.KeyUsage,
+			&domainInfo.ExtKeyUsages,
+			&domainInfo.Issued,
+			&domainInfo.Expires,
+			&domainInfo.Status,
+			&domainInfo.LastPollAt,
+			&domainInfo.Latency,
+			&domainInfo.Error,
 		)
 		if err != nil {
 			d.log.Error(err)
 			continue
 		}
-		response = append(response, domainName)
+		response = append(response, &domainInfo)
 	}
 
 	return response, nil
@@ -341,4 +374,32 @@ func (d *domainRepo) UpdateAllTheSameDomainsInfo(ctx context.Context, domainInfo
 	}
 
 	return nil
+}
+
+func (d *domainRepo) GetListofUsersThatDomainExists(ctx context.Context, domain string) ([]int64, error) {
+	query := `
+		SELECT 
+			user_id
+		FROM tracking_domains WHERE domain = $1; 
+	`
+
+	res, err := d.db.Query(ctx, query, domain)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Close()
+	response := make([]int64, 0)
+	var userID int64
+	for res.Next() {
+		err := res.Scan(
+			&userID,
+		)
+		if err != nil {
+			d.log.Error(err)
+			continue
+		}
+		response = append(response, userID)
+	}
+
+	return response, nil
 }

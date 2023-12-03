@@ -34,6 +34,7 @@ type TrackingDomainInfo struct {
 	LastPollAt    time.Time
 	Latency       *int
 	Error         *string
+	LastAlertTime *time.Time // the last time of alert of domain's expiration or changes
 }
 
 type DomainTracking struct {

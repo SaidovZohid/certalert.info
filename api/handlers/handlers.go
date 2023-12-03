@@ -257,7 +257,8 @@ func TrackDomainsAdded(t *TrackDomainAdd) error {
 				t.Log.Error(err)
 				return
 			}
-
+			nw := time.Now()
+			info.LastAlertTime = &nw
 			domainInfo, err := t.Strg.Domain().CreateTrackingDomain(context.Background(), &ssl.DomainTracking{
 				UserID:             t.UserID,
 				DomainName:         domain,

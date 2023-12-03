@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/pkg/ssl"
@@ -41,8 +42,9 @@ func (d *domainRepo) CreateTrackingDomain(ctx context.Context, domainInfo *ssl.D
 			last_poll_at,
 			latency,
 			error, 
-			issued
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) RETURNING id
+			issued,
+			last_alert_time
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) RETURNING id
 	`
 	err := d.db.QueryRow(
 		ctx,
@@ -65,6 +67,7 @@ func (d *domainRepo) CreateTrackingDomain(ctx context.Context, domainInfo *ssl.D
 		domainInfo.Latency,
 		domainInfo.Error,
 		domainInfo.Issued,
+		domainInfo.LastAlertTime,
 	).Scan(
 		&domainInfo.ID,
 	)
@@ -94,7 +97,8 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainName(ctx context.Context, domai
 			status,
 			last_poll_at,
 			latency,
-			error
+			error,
+			last_alert_time
 		FROM tracking_domains WHERE user_id=$1 AND domain=$2
 	`
 	err := d.db.QueryRow(ctx, query, domain.UserID, domain.DomainName).Scan(
@@ -115,6 +119,7 @@ func (d *domainRepo) GetDomainWithUserIDAndDomainName(ctx context.Context, domai
 		&domain.LastPollAt,
 		&domain.Latency,
 		&domain.Error,
+		&domain.LastAlertTime,
 	)
 	if err != nil {
 		return nil, err
@@ -402,4 +407,16 @@ func (d *domainRepo) GetListofUsersThatDomainExists(ctx context.Context, domain 
 	}
 
 	return response, nil
+}
+
+func (d *domainRepo) UpdateTheLastAlertTime(ctx context.Context, userID int64, domain string) error {
+	query := `
+		UPDATE tracking_domains
+		SET last_alert_time = $1 WHERE user_id = $2 AND domain = $3
+	`
+	if _, err := d.db.Exec(ctx, query, time.Now(), userID, domain); err != nil {
+		return err
+	}
+
+	return nil
 }

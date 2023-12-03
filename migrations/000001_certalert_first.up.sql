@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS "tracking_domains" (
     "status" VARCHAR,
     "last_poll_at" TIMESTAMP,
     "latency" BIGINT,
-    "error" VARCHAR
+    "error" VARCHAR,
+    "last_alert_time" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "telegram_users" (
@@ -69,6 +70,5 @@ CREATE TABLE IF NOT EXISTS "notifications" (
     "telegram_alert" BOOLEAN DEFAULT false,
     "slack_alert" BOOLEAN DEFAULT false,
     "discord_alert" BOOLEAN DEFAULT false,
-    "microsoft_team_alert" BOOLEAN DEFAULT false, 
-    "last_alert_time" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "microsoft_team_alert" BOOLEAN DEFAULT false
 );

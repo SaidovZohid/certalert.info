@@ -2,6 +2,8 @@ package utils
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -51,6 +53,8 @@ func (args *UpdateDomainRegArgs) UpdateDomainInformationRegularly(ctx context.Co
 		return
 	}
 
+	args.Log.Info("Successfully pulled info and updated for the first time!")
+
 	// Run the domain information update loop
 	for {
 		select {
@@ -83,7 +87,7 @@ func (args *UpdateDomainRegArgs) poll(ctx context.Context) error {
 		results = make(chan DomainNowAndPreviousInfo, len(domains))
 	)
 	defer close(workers)
-
+	args.Log.Info("Domains -> ", len(domains))
 	for _, domain := range domains {
 		wg.Add(1)
 		go func(domain *ssl.DomainTracking) {
@@ -140,36 +144,69 @@ func (args *UpdateDomainRegArgs) filterDomainsOwnersNotif(ctx context.Context, r
 			continue
 		}
 		for _, userId := range users {
-			user, err := args.Strg.User().GetUserByID(ctx, userId)
+			domain, err := args.Strg.Domain().GetDomainWithUserIDAndDomainName(ctx, &ssl.DomainTracking{
+				DomainName: v.DomainName,
+				UserID:     userId,
+			})
 			if err != nil {
-				args.Log.Errorf("error getting user by id %d", err)
+				args.Log.Errorf("error getting domain with user id and domain name %s", err)
 				continue
 			}
-
-			notification, err := args.Strg.Notifications().GetNotificationRowByUserID(ctx, userId)
-			if err != nil {
-				args.Log.Errorf("error getting notification row by userid %d", err)
-				continue
-			}
-
-			err = args.notifyUser(ctx, user, notification, &v)
-			if err != nil {
-				args.Log.Errorf("error notifying user %s", err)
-				continue
+			// If last alert time is one day after, send notification about expiration. Otherwise just skip it.
+			if isLastAlertTimeOneDayAgo(*domain.LastAlertTime) {
+				user, err := args.Strg.User().GetUserByID(ctx, userId)
+				if err != nil {
+					args.Log.Errorf("error getting user by id %d", err)
+					continue
+				}
+				notification, err := args.Strg.Notifications().GetNotificationRowByUserID(ctx, userId)
+				if err != nil {
+					args.Log.Errorf("error getting notification row by userid %d", err)
+					continue
+				}
+				err = args.notifyUser(ctx, user, notification, &v)
+				if err != nil {
+					args.Log.Errorf("error notifying user %s", err)
+					continue
+				}
 			}
 		}
 	}
-
 	return nil
 }
 
+func isLastAlertTimeOneDayAgo(lastAlertTime time.Time) bool {
+	// Calculate the duration between current time and last_alert_time
+	duration := time.Since(lastAlertTime)
+
+	// if the duration is greater than or equal to 24 hours; return true; return false
+	return duration >= 24*time.Hour
+}
+
+var changeAlertStr = "change_alert"
+var expiryAlertStr = "expiry_alert"
+
 func (args *UpdateDomainRegArgs) notifyUser(ctx context.Context, user *models.User, notification *models.Notification, domainPrInfo *DomainNowAndPreviousInfo) error {
 	expiryAlert, changeAlert := checkExpiryAndChangeSSLOfDomain(user, domainPrInfo, notification)
-
 	// TODO:
 	// * check the expiry or change alert true or false and write the logic of sending of notification code!
-	_ = expiryAlert
-	_ = changeAlert
+	var isNotified bool
+	if notification.ExpiryAlerts && expiryAlert {
+		args.Log.Info("Expiration Notify ", domainPrInfo.DomainName)
+		if err := args.sendNotificationChangeOrExpire(&expiryAlertStr, user, domainPrInfo, notification); err != nil {
+			return err
+		}
+		isNotified = true
+	} else if notification.ChangeAlert && changeAlert {
+		args.Log.Info("Change Notify ", domainPrInfo.DomainName)
+		if err := args.sendNotificationChangeOrExpire(&changeAlertStr, user, domainPrInfo, notification); err != nil {
+			return err
+		}
+		isNotified = true
+	}
+	if isNotified {
+		return args.Strg.Domain().UpdateTheLastAlertTime(ctx, user.ID, domainPrInfo.DomainName)
+	}
 
 	return nil
 }
@@ -192,7 +229,106 @@ func checkExpiryAndChangeSSLOfDomain(user *models.User, domainPrInfo *DomainNowA
 			*domainPrInfo.Prev.Status != *domainPrInfo.Current.Status
 	}
 
-	// return currentDate.After(expirationDate)
-
 	return expiryAlert, changeAlert
+}
+
+// tp = {change_alert or expiry_alert}
+func (args *UpdateDomainRegArgs) sendNotificationChangeOrExpire(tp *string, user *models.User, domainPrInfo *DomainNowAndPreviousInfo, notification *models.Notification) error {
+	if tp == nil {
+		return errors.New("nil notification type")
+	}
+	var err error
+	switch *tp {
+	case expiryAlertStr:
+		if notification.EmailAlert {
+			err = args.sendNotificationToUserByEmail(tp, user, domainPrInfo, notification)
+			if err != nil {
+				return err
+			}
+		}
+		if notification.TelegramAlert {
+			err = args.sendNotificationToUserByTelegram(tp, user, domainPrInfo, notification)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = errors.New("no alert method is set")
+		}
+	case changeAlertStr:
+
+	default:
+		err = fmt.Errorf("unknown type %v", tp)
+	}
+
+	return err
+}
+
+// tp = {change_alert or expiry_alert}
+// Email Notification
+func (args *UpdateDomainRegArgs) sendNotificationToUserByEmail(tp *string, user *models.User, domainPrInfo *DomainNowAndPreviousInfo, notification *models.Notification) error {
+	if tp == nil {
+		return errors.New("nil notification type")
+	}
+	return nil
+}
+
+// tp = {change_alert or expiry_alert}
+// Telegram Notification
+func (args *UpdateDomainRegArgs) sendNotificationToUserByTelegram(tp *string, user *models.User, domainPrInfo *DomainNowAndPreviousInfo, notification *models.Notification) error {
+	if tp == nil {
+		return errors.New("nil notification type")
+	}
+	userTg, err := args.Strg.Integrations().GetFromTelegramByUserID(context.Background(), user.ID)
+	if err != nil {
+		return err
+	}
+	if userTg.ChatID == 0 {
+		return fmt.Errorf("no chat id for telegram notification to user id %v", user.ID)
+	}
+	var msg string
+	if userTg.Lang == "uz" {
+		msg = "Assalomu Alaykum 👋️️️️,\n\nSiz kuzatayotgan domen, " + domainPrInfo.DomainName + ", "
+	} else if userTg.Lang == "ru" {
+		msg = "Здравствуйте 👋️️️️,\n\nВаш отслеживаемый домен, " + domainPrInfo.DomainName + ", "
+	} else if userTg.Lang == "eng" {
+		msg = "Hello 👋️️️️,\n\nYour tracked domain, " + domainPrInfo.DomainName + ", "
+	} else {
+		return fmt.Errorf("unsupported language code %s", userTg.Lang)
+	}
+	switch *tp {
+	case expiryAlertStr:
+		lft := daysUntilExpiration(*domainPrInfo.Current.Expires)
+		if userTg.Lang == "uz" {
+			msg += fmt.Sprintf("yaqinlashib kelayotgan SSL muddati bor. Faqat [%v] kun qoldi. Zudlik bilan harakat qiling-tafsilotlarni tekshiring [%v].", lft, args.Cfg.BaseUrl)
+		} else if userTg.Lang == "ru" {
+			msg += fmt.Sprintf("истекает срок действия SSL. Осталось всего [%v] дней. Действуйте незамедлительно - проверьте подробности на [%v].", lft, args.Cfg.BaseUrl)
+		} else if userTg.Lang == "eng" {
+			msg += fmt.Sprintf("has an upcoming SSL expiration. Only [%v] days left. Act promptly - check details at [%v].", lft, args.Cfg.BaseUrl)
+		} else {
+			return fmt.Errorf("unsupported language code %s", userTg.Lang)
+		}
+	case changeAlertStr:
+		args.Log.Info("sending change alert notification")
+	default:
+		return errors.New("unknown type " + *tp)
+	}
+
+	message := tgbotapi.NewMessage(userTg.ChatID, msg)
+	if _, err := args.Bot.Send(message); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func daysUntilExpiration(expirationTime time.Time) int {
+	// Calculate the duration until expiration
+	duration := time.Until(expirationTime)
+
+	// Convert the duration to days
+	daysLeft := int(duration.Hours() / 24)
+
+	fmt.Println(daysLeft)
+
+	return daysLeft
 }

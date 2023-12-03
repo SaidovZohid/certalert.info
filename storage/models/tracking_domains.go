@@ -17,4 +17,5 @@ type DomainStorageI interface {
 	GetListofDomainsThatExists(ctx context.Context) ([]*ssl.DomainTracking, error)
 	UpdateAllTheSameDomainsInfo(ctx context.Context, domainInfo *ssl.DomainTracking) error
 	GetListofUsersThatDomainExists(ctx context.Context, domain string) ([]int64, error)
+	UpdateTheLastAlertTime(ctx context.Context, userID int64, domain string) error
 }

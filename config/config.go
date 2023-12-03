@@ -17,6 +17,7 @@ type Config struct {
 	Redis                       string
 	LocationInfoKey             string
 	TelegramApiToken            string
+	TelegramBotUsername         string
 	SignUPLinkTokenTime         time.Duration
 	ForgotPasswordLinkTokenTime time.Duration
 	UpdateEmailLinkTokenTime    time.Duration
@@ -84,5 +85,6 @@ func Load() Config {
 		},
 		PullUpdateDomainInterval: conf.GetDuration("PULL_UPDATE_DOMAIN_INTERVAL"),
 		TelegramApiToken:         conf.GetString("TELEGRAM_APITOKEN"),
+		TelegramBotUsername:      conf.GetString("TELEGRAM_BOT_USERNAME"),
 	}
 }

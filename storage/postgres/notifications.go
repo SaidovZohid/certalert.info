@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
@@ -49,18 +48,6 @@ func (n *notificationRepo) UpdateTheAlertIntegrations(ctx context.Context, userI
 	return nil
 }
 
-func (n *notificationRepo) UpdateTheLastAlertTime(ctx context.Context, userID int64) error {
-	query := `
-		UPDATE notifications
-		SET last_alert_time = $1 WHERE user_id = $2
-	`
-	if _, err := n.db.Exec(ctx, query, time.Now(), userID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (n *notificationRepo) GetNotificationRowByUserID(ctx context.Context, userID int64) (*models.Notification, error) {
 	var notification models.Notification
 	query := `SELECT 
@@ -72,8 +59,7 @@ func (n *notificationRepo) GetNotificationRowByUserID(ctx context.Context, userI
 		telegram_alert,
 		slack_alert,
 		discord_alert,
-		microsoft_team_alert,
-		last_alert_time
+		microsoft_team_alert
 	FROM notifications WHERE user_id=$1`
 	err := n.db.QueryRow(ctx, query, userID).Scan(
 		&notification.UserID,
@@ -85,7 +71,6 @@ func (n *notificationRepo) GetNotificationRowByUserID(ctx context.Context, userI
 		&notification.SlackAlert,
 		&notification.DiscordAlert,
 		&notification.MicrosoftTeamsAlert,
-		&notification.LastAlertTime,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

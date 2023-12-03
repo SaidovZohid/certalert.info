@@ -23,7 +23,8 @@ func (h *handlerV1) HandleGetLandingPage(c *fiber.Ctx) error {
 
 	log.Println(user2.ID)
 	return c.Render("home/index", fiber.Map{
-		"user": user,
-		"id":   user2.ID,
+		"user":         user,
+		"id":           user2.ID,
+		"telegram_bot": h.cfg.TelegramBotUsername,
 	})
 }

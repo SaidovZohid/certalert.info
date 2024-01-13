@@ -3,9 +3,10 @@ package postgres
 import (
 	"context"
 
+	"github.com/jackc/pgx/v4/pgxpool"
+
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/storage/models"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type integrationsRepo struct {
@@ -93,15 +94,14 @@ func (i *integrationsRepo) GetFromTelegramByUserID(ctx context.Context, userID i
 func (i *integrationsRepo) LinkTelegramAccountToWebsiteAccount(ctx context.Context, user *models.TelegramUser) error {
 	query := `
 		INSERT INTO telegram_users (
-			id,
 			user_id,
 			chat_id,
 			telegram_user_id,
 			lang,
 			step
-		) VALUES ($1, $2, $3, $4, $5, $6)
+		) VALUES ($1, $2, $3, $4, $5)
 	`
-	_, err := i.db.Exec(ctx, query, user.ID, user.UserID, user.ChatID, user.TelegramUserID, user.Lang, user.Step)
+	_, err := i.db.Exec(ctx, query, user.UserID, user.ChatID, user.TelegramUserID, user.Lang, user.Step)
 	if err != nil {
 		return err
 	}

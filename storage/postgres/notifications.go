@@ -37,10 +37,7 @@ func (n *notificationRepo) CreateNotificationRow(ctx context.Context, userID int
 }
 
 func (n *notificationRepo) UpdateTheAlertIntegrations(ctx context.Context, userID int64, nameField string, value bool) error {
-	query := fmt.Sprintf(`
-		UPDATE notifications
-		SET %v = $1 WHERE user_id = $2
-	`, nameField)
+	query := fmt.Sprintf(`UPDATE notifications SET %v = $1 WHERE user_id = $2`, nameField)
 	if _, err := n.db.Exec(ctx, query, value, userID); err != nil {
 		return err
 	}

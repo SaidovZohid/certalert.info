@@ -25,5 +25,6 @@ type User struct {
 	LastPollAt         *time.Time
 	MaxDomainsTracking *int
 	UserAcceptedTerms  *bool
+	SignUpMethod       string
 	CreatedAt          time.Time
 }

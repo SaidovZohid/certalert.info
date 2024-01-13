@@ -12,7 +12,7 @@
 [ ] Privacy/Term-Of-Conditions Pages
 [ ] FAQ
 [ ] Fix the bug of in pulling and updating domains is not working correctly. It's making some domains unresponsive status.
-
+[ ] Fix the bug of update email. When request comes twice or more at once. Take the last one as the updating email!
 
 # - Example domain names:  
 google.com facebook.com microsoft.com amazon.com github.com

@@ -15,12 +15,12 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-// handles signup page rendering
+// HandleGetSignUpPage handles signup page rendering
 func (h *handlerV1) HandleGetSignUpPage(c *fiber.Ctx) error {
 	return c.Render("signup/index", nil)
 }
 
-// handles user sign up page form request
+// HandeSignupUser handles user sign up page form request
 func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 	var req apiModels.SignUpReq
 	if err := c.BodyParser(&req); err != nil {
@@ -85,11 +85,11 @@ func (h *handlerV1) HandeSignupUser(c *fiber.Ctx) error {
 	}()
 
 	redisUser := &apiModels.UserRedis{
-		FirstName:         splitedName[0],
-		LastName:          splitedName[1],
-		Email:             req.Email,
-		Password:          password,
-		IsUserAgreeeTerms: true,
+		FirstName:        splitedName[0],
+		LastName:         splitedName[1],
+		Email:            req.Email,
+		Password:         password,
+		IsUserAgreeTerms: true,
 	}
 	userData, err := json.Marshal(redisUser)
 	if err != nil {
@@ -137,18 +137,20 @@ func (h *handlerV1) HandleVerifyUserSignUp(c *fiber.Ctx) error {
 		return errors.New("try again, something went wrong")
 	}
 
-	_, err = h.strg.User().CreateUser(context.Background(), &models.User{
+	createdUser, err := h.strg.User().CreateUser(context.Background(), &models.User{
 		FirstName:         userNotVerified.FirstName,
 		LastName:          userNotVerified.LastName,
 		Email:             userNotVerified.Email,
 		Password:          userNotVerified.Password,
-		UserAcceptedTerms: &userNotVerified.IsUserAgreeeTerms,
+		SignUpMethod:      "standard",
+		UserAcceptedTerms: &userNotVerified.IsUserAgreeTerms,
 	})
 	if err != nil {
 		h.log.Error(err)
 		return errors.New("try again, something went wrong")
 	}
-	if err := h.strg.Notifications().CreateNotificationRow(context.Background(), user.ID); err != nil {
+
+	if err := h.strg.Notifications().CreateNotificationRow(context.Background(), createdUser.ID); err != nil {
 		h.log.Error(err)
 		return errors.New("failed to create new user")
 	}
@@ -156,12 +158,12 @@ func (h *handlerV1) HandleVerifyUserSignUp(c *fiber.Ctx) error {
 	return c.Redirect("/login")
 }
 
-// handles login page rendering
+// HandleGetLoginPage handles login page rendering
 func (h *handlerV1) HandleGetLoginPage(c *fiber.Ctx) error {
 	return c.Render("login/index", nil)
 }
 
-// handles user login page form request
+// HandeLoginUser handles user login page form request
 func (h *handlerV1) HandeLoginUser(c *fiber.Ctx) error {
 	var req apiModels.LoginReq
 	if err := c.BodyParser(&req); err != nil {
@@ -180,7 +182,7 @@ func (h *handlerV1) HandeLoginUser(c *fiber.Ctx) error {
 
 	if err := utils.CheckPassword(req.Password, user.Password); err != nil {
 		return c.Render("login/index", fiber.Map{
-			"error": "Email or Passoword is incorrect",
+			"error": "Email or Password is incorrect",
 		})
 	}
 
@@ -197,14 +199,14 @@ func (h *handlerV1) HandeLoginUser(c *fiber.Ctx) error {
 	return c.Redirect("/domains", 302)
 }
 
-// Google sign in or up redirect user to google
+// HandleGoogleAuth Google sign in or up redirect user to google
 func (h *handlerV1) HandleGoogleAuth(c *fiber.Ctx) error {
 	url := h.cfg.Google.Conf.AuthCodeURL("randomstate")
 
 	return c.Redirect(url, 307)
 }
 
-// Callback for google get code in query by google and authicated access token and get user data and  handle sign in or sign up
+// HandleGoogleCallback Callback for Google get code in query by google and authenticated access token and get user data and  handle sign in or sign up
 func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 	if c.Query("state") != "randomstate" {
 		return errors.New("user denied login or signup")
@@ -226,16 +228,18 @@ func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 	user, err := h.strg.User().GetUserByEmail(context.Background(), data.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		h.log.Error(err)
-		return errors.New("something went unexpected")
+		return errors.New("something went unexpected, try again")
 	}
 	if user == nil {
-		// ps := utils.GenerateRandomPassword(16)
-		// log.Println(ps)
-		ps := "qwert"
+		ps, err := utils.GenerateRandomCode(16)
+		if err != nil {
+			h.log.Error(err)
+			return errors.New("something went unexpected, try again")
+		}
 		randomPassword, err := utils.HashPassword(ps)
 		if err != nil {
 			h.log.Error(err)
-			return errors.New("something went unexpected")
+			return errors.New("something went unexpected, try again")
 		}
 		userAccepted := true
 		userCreated, err := h.strg.User().CreateUser(context.Background(), &models.User{
@@ -243,6 +247,7 @@ func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 			LastName:          data.LastName,
 			Email:             data.Email,
 			Password:          randomPassword,
+			SignUpMethod:      "google",
 			UserAcceptedTerms: &userAccepted,
 		})
 		if err != nil {
@@ -265,7 +270,7 @@ func (h *handlerV1) HandleGoogleCallback(c *fiber.Ctx) error {
 	return c.Redirect("/domains", 302)
 }
 
-// Handle log out from website
+// HandleLogout Handle log out from website
 func (h *handlerV1) HandleLogout(c *fiber.Ctx) error {
 	_, id := h.getAuth(c)
 	if id == "" {

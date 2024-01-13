@@ -7,17 +7,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/template/django/v3"
+
 	"github.com/SaidovZohid/certalert.info/api/handlers"
 	h "github.com/SaidovZohid/certalert.info/api/handlers"
 	"github.com/SaidovZohid/certalert.info/config"
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/pkg/ssl"
 	"github.com/SaidovZohid/certalert.info/storage"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/django/v3"
-
-	"github.com/gofiber/fiber/v2/middleware/favicon"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 type RoutetOptions struct {
@@ -228,6 +228,7 @@ func New(opt *RoutetOptions) *fiber.App {
 	app.Get("/account/change-email", handlers.AuthMiddleware, handlers.HandleChangeEmailPage)
 	app.Post("/account/change-email", handlers.AuthMiddleware, handlers.HandleChangeEmail)
 	app.Get("/account/change-email/options", handlers.HandleChangeEmailOptions)
+	app.Get("/goroutines", handlers.GetNumGoroutines)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Render("404/index", nil)

@@ -27,8 +27,9 @@ func (u *userRepo) CreateUser(ctx context.Context, user *models.User) (*models.U
 			last_name,
 			email,
 			password,
+		    sign_up_method,
 			user_accepted_terms
-		) VALUES ($1, $2, $3, $4, $5)
+		) VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at
 	`
 	err := u.db.QueryRow(
@@ -38,6 +39,7 @@ func (u *userRepo) CreateUser(ctx context.Context, user *models.User) (*models.U
 		user.LastName,
 		user.Email,
 		user.Password,
+		user.SignUpMethod,
 		user.UserAcceptedTerms,
 	).Scan(
 		&user.ID,
@@ -126,37 +128,37 @@ func (u *userRepo) GetUserByID(ctx context.Context, id int64) (*models.User, err
 	return &result, nil
 }
 
-func (d *userRepo) UpdateUserLastPoll(ctx context.Context, userID int64) error {
+func (u *userRepo) UpdateUserLastPoll(ctx context.Context, userID int64) error {
 	query := `UPDATE users SET domains_last_check = CURRENT_TIMESTAMP WHERE id = $1`
 
-	_, err := d.db.Exec(ctx, query, userID)
+	_, err := u.db.Exec(ctx, query, userID)
 	return err
 }
 
-func (d *userRepo) UpdateUserLastPollToNULL(ctx context.Context, userID int64) error {
+func (u *userRepo) UpdateUserLastPollToNULL(ctx context.Context, userID int64) error {
 	query := `UPDATE users SET domains_last_check = NULL WHERE id = $1`
 
-	_, err := d.db.Exec(ctx, query, userID)
+	_, err := u.db.Exec(ctx, query, userID)
 	return err
 }
 
-func (d *userRepo) UpdateUserPassword(ctx context.Context, userID int64, newPassword string) error {
+func (u *userRepo) UpdateUserPassword(ctx context.Context, userID int64, newPassword string) error {
 	query := `UPDATE users SET password = $1 WHERE id = $2`
 
-	_, err := d.db.Exec(ctx, query, newPassword, userID)
+	_, err := u.db.Exec(ctx, query, newPassword, userID)
 	return err
 }
 
-func (d *userRepo) UpdateUserEmail(ctx context.Context, userID int64, newEmailAddr string) error {
+func (u *userRepo) UpdateUserEmail(ctx context.Context, userID int64, newEmailAddr string) error {
 	query := `UPDATE users SET email = $1 WHERE id = $2`
 
-	_, err := d.db.Exec(ctx, query, newEmailAddr, userID)
+	_, err := u.db.Exec(ctx, query, newEmailAddr, userID)
 	return err
 }
 
-func (d *userRepo) DeleteUser(ctx context.Context, userID int64) error {
+func (u *userRepo) DeleteUser(ctx context.Context, userID int64) error {
 	query := `DELETE FROM users WHERE id = $1`
 
-	_, err := d.db.Exec(ctx, query, userID)
+	_, err := u.db.Exec(ctx, query, userID)
 	return err
 }

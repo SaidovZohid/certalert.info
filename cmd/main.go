@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"os"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/redis/go-redis/v9"
+
 	"github.com/SaidovZohid/certalert.info/api"
 	"github.com/SaidovZohid/certalert.info/config"
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
 	"github.com/SaidovZohid/certalert.info/pkg/utils"
 	"github.com/SaidovZohid/certalert.info/storage"
 	"github.com/SaidovZohid/certalert.info/telegram"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/redis/go-redis/v9"
 )
 
 func main() {

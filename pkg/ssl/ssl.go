@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 )
@@ -97,7 +98,12 @@ func PollDomain(ctx context.Context, domain string) (*TrackingDomainInfo, error)
 			// Exit the function after handling the error
 			return
 		}
-		defer conn.Close()
+		defer func(conn *tls.Conn) {
+			err := conn.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(conn)
 		var (
 			// Retrieve the TLS connection state and peer certificate from the connection 'conn'.
 			state     = conn.ConnectionState()

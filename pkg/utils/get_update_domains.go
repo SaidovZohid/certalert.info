@@ -86,18 +86,20 @@ func (args *UpdateDomainRegArgs) poll(ctx context.Context) error {
 		wg      = sync.WaitGroup{}
 		results = make(chan DomainNowAndPreviousInfo, len(domains))
 	)
-	defer close(workers)
+
 	args.Log.Info("Domains -> ", len(domains))
+
 	for _, domain := range domains {
 		wg.Add(1)
 		go func(domain *ssl.DomainTracking) {
-			ctxPoll, cancel := context.WithTimeout(context.Background(), time.Second*10)
-			workers <- struct{}{}
 			defer func() {
 				<-workers
 				wg.Done()
-				cancel()
 			}()
+			ctxPoll, cancel := context.WithTimeout(context.Background(), time.Second*10)
+			defer cancel()
+
+			workers <- struct{}{}
 
 			info, err := ssl.PollDomain(ctxPoll, domain.DomainName)
 			if err != nil {
@@ -152,7 +154,7 @@ func (args *UpdateDomainRegArgs) filterDomainsOwnersNotif(ctx context.Context, r
 				args.Log.Errorf("error getting domain with user id and domain name %s", err)
 				continue
 			}
-			// If last alert time is one day after, send notification about expiration. Otherwise just skip it.
+			// If last alert time is one day after, send notification about expiration. Otherwise, just skip it.
 			if isLastAlertTimeOneDayAgo(*domain.LastAlertTime) {
 				user, err := args.Strg.User().GetUserByID(ctx, userId)
 				if err != nil {
@@ -175,19 +177,8 @@ func (args *UpdateDomainRegArgs) filterDomainsOwnersNotif(ctx context.Context, r
 	return nil
 }
 
-func isLastAlertTimeOneDayAgo(lastAlertTime time.Time) bool {
-	// Calculate the duration between current time and last_alert_time
-	duration := time.Since(lastAlertTime)
-
-	// if the duration is greater than or equal to 24 hours; return true; return false
-	return duration >= 24*time.Hour
-}
-
-var changeAlertStr = "change_alert"
-var expiryAlertStr = "expiry_alert"
-
 func (args *UpdateDomainRegArgs) notifyUser(ctx context.Context, user *models.User, notification *models.Notification, domainPrInfo *DomainNowAndPreviousInfo) error {
-	expiryAlert, changeAlert := checkExpiryAndChangeSSLOfDomain(user, domainPrInfo, notification)
+	expiryAlert, changeAlert := checkExpiryAndChangeSSLOfDomain(domainPrInfo, notification)
 	// TODO:
 	// * check the expiry or change alert true or false and write the logic of sending of notification code!
 	var isNotified bool
@@ -211,27 +202,6 @@ func (args *UpdateDomainRegArgs) notifyUser(ctx context.Context, user *models.Us
 	return nil
 }
 
-func checkExpiryAndChangeSSLOfDomain(user *models.User, domainPrInfo *DomainNowAndPreviousInfo, notification *models.Notification) (expiryAlert bool, changeAlert bool) {
-	if domainPrInfo.Current.Expires == nil {
-		return domainPrInfo.Current.Expires != domainPrInfo.Prev.Expires, true
-	}
-	expirationDate := domainPrInfo.Current.Expires.AddDate(0, 0, -notification.Before)
-	currentDate := time.Now()
-
-	expiryAlert = currentDate.After(expirationDate)
-
-	if domainPrInfo.Current.RemoteAddr != nil {
-		changeAlert = *domainPrInfo.Prev.RemoteAddr != *domainPrInfo.Current.RemoteAddr || *domainPrInfo.Prev.Issuer != *domainPrInfo.Current.Issuer ||
-			*domainPrInfo.Prev.PublicKey != *domainPrInfo.Current.PublicKey ||
-			*domainPrInfo.Prev.DNSNames != *domainPrInfo.Current.DNSNames ||
-			*domainPrInfo.Prev.KeyUsage != *domainPrInfo.Current.KeyUsage ||
-			*domainPrInfo.Prev.ExtKeyUsages != *domainPrInfo.Current.ExtKeyUsages ||
-			*domainPrInfo.Prev.Status != *domainPrInfo.Current.Status
-	}
-
-	return expiryAlert, changeAlert
-}
-
 // tp = {change_alert or expiry_alert}
 func (args *UpdateDomainRegArgs) sendNotificationChangeOrExpire(tp *string, user *models.User, domainPrInfo *DomainNowAndPreviousInfo, notification *models.Notification) error {
 	if tp == nil {
@@ -241,13 +211,13 @@ func (args *UpdateDomainRegArgs) sendNotificationChangeOrExpire(tp *string, user
 	switch *tp {
 	case expiryAlertStr:
 		if notification.EmailAlert {
-			err = args.sendNotificationToUserByEmail(tp, user, domainPrInfo, notification)
+			err = args.sendNotificationToUserByEmail(tp)
 			if err != nil {
 				return err
 			}
 		}
 		if notification.TelegramAlert {
-			err = args.sendNotificationToUserByTelegram(tp, user, domainPrInfo, notification)
+			err = args.sendNotificationToUserByTelegram(tp, user, domainPrInfo)
 			if err != nil {
 				return err
 			}
@@ -265,7 +235,7 @@ func (args *UpdateDomainRegArgs) sendNotificationChangeOrExpire(tp *string, user
 
 // tp = {change_alert or expiry_alert}
 // Email Notification
-func (args *UpdateDomainRegArgs) sendNotificationToUserByEmail(tp *string, user *models.User, domainPrInfo *DomainNowAndPreviousInfo, notification *models.Notification) error {
+func (args *UpdateDomainRegArgs) sendNotificationToUserByEmail(tp *string) error {
 	if tp == nil {
 		return errors.New("nil notification type")
 	}
@@ -274,7 +244,7 @@ func (args *UpdateDomainRegArgs) sendNotificationToUserByEmail(tp *string, user 
 
 // tp = {change_alert or expiry_alert}
 // Telegram Notification
-func (args *UpdateDomainRegArgs) sendNotificationToUserByTelegram(tp *string, user *models.User, domainPrInfo *DomainNowAndPreviousInfo, notification *models.Notification) error {
+func (args *UpdateDomainRegArgs) sendNotificationToUserByTelegram(tp *string, user *models.User, domainPrInfo *DomainNowAndPreviousInfo) error {
 	if tp == nil {
 		return errors.New("nil notification type")
 	}
@@ -297,6 +267,8 @@ func (args *UpdateDomainRegArgs) sendNotificationToUserByTelegram(tp *string, us
 	}
 	switch *tp {
 	case expiryAlertStr:
+		fmt.Println(domainPrInfo.DomainName)
+		// ! here is the panic from reading value of Expires.
 		lft := daysUntilExpiration(*domainPrInfo.Current.Expires)
 		if userTg.Lang == "uz" {
 			msg += fmt.Sprintf("yaqinlashib kelayotgan SSL muddati bor. Faqat [%v] kun qoldi. Zudlik bilan harakat qiling-tafsilotlarni tekshiring [%v].", lft, args.Cfg.BaseUrl)
@@ -308,6 +280,7 @@ func (args *UpdateDomainRegArgs) sendNotificationToUserByTelegram(tp *string, us
 			return fmt.Errorf("unsupported language code %s", userTg.Lang)
 		}
 	case changeAlertStr:
+		// TODO: write the logic of sending change domain ssl certificate notification!
 		args.Log.Info("sending change alert notification")
 	default:
 		return errors.New("unknown type " + *tp)
@@ -319,16 +292,4 @@ func (args *UpdateDomainRegArgs) sendNotificationToUserByTelegram(tp *string, us
 	}
 
 	return nil
-}
-
-func daysUntilExpiration(expirationTime time.Time) int {
-	// Calculate the duration until expiration
-	duration := time.Until(expirationTime)
-
-	// Convert the duration to days
-	daysLeft := int(duration.Hours() / 24)
-
-	fmt.Println(daysLeft)
-
-	return daysLeft
 }

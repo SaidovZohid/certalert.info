@@ -9,8 +9,14 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"runtime"
 	"sync"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/ipinfo/go/v2/ipinfo"
+	"github.com/jackc/pgx/v4"
+	"github.com/mssola/useragent"
 
 	"github.com/SaidovZohid/certalert.info/config"
 	"github.com/SaidovZohid/certalert.info/pkg/logger"
@@ -18,10 +24,6 @@ import (
 	"github.com/SaidovZohid/certalert.info/pkg/utils"
 	"github.com/SaidovZohid/certalert.info/storage"
 	"github.com/SaidovZohid/certalert.info/storage/models"
-	"github.com/gofiber/fiber/v2"
-	"github.com/ipinfo/go/v2/ipinfo"
-	"github.com/jackc/pgx/v4"
-	"github.com/mssola/useragent"
 )
 
 type handlerV1 struct {
@@ -63,6 +65,12 @@ type User struct {
 	FirstName string `json:"given_name"`
 	LastName  string `json:"family_name"`
 	Email     string `json:"email"`
+}
+
+func (h *handlerV1) GetNumGoroutines(ctx *fiber.Ctx) error {
+	count := runtime.NumGoroutine()
+
+	return ctx.SendString(fmt.Sprintf("%v running goroutines", count))
 }
 
 func (h *handlerV1) getUserInfoFromGoogle(token string) (*User, error) {
@@ -113,14 +121,6 @@ func (h *handlerV1) SetCookie(c *fiber.Ctx, name string, val string, expires tim
 			SameSite: fiber.CookieSameSiteLaxMode,
 		})
 	}
-}
-
-type LocationInfo struct {
-	IP       string `json:"ip"`
-	City     string `json:"city"`
-	Region   string `json:"region"`
-	Country  string `json:"country"`
-	Timezone string `json:"timezone"`
 }
 
 func GetLocation(ipaddress string, cfg *config.Config) (*LocationInfo, error) {
@@ -203,6 +203,13 @@ func handleLoginDependencies(c *fiber.Ctx, h *handlerV1, id int64, data *User) e
 	return nil
 }
 
+type TrackDomainAdd struct {
+	Domains []string
+	UserID  int64
+	Log     *logger.Logger
+	Strg    storage.StorageI
+}
+
 // func getCurrentTimeInTimeZone(timezone string) (time.Time, error) {
 // 	// Get the UTC offset for the timezone
 // 	loc, err := time.LoadLocation(timezone)
@@ -220,13 +227,6 @@ func handleLoginDependencies(c *fiber.Ctx, h *handlerV1, id int64, data *User) e
 
 // 	return currentTime, nil
 // }
-
-type TrackDomainAdd struct {
-	Domains []string
-	UserID  int64
-	Log     *logger.Logger
-	Strg    storage.StorageI
-}
 
 func TrackDomainsAdded(t *TrackDomainAdd) error {
 	var (
@@ -354,6 +354,14 @@ func isValidDomain(domain string) bool {
 
 	// Test if the domain matches the pattern
 	return re.MatchString(domain)
+}
+
+type LocationInfo struct {
+	IP       string `json:"ip"`
+	City     string `json:"city"`
+	Region   string `json:"region"`
+	Country  string `json:"country"`
+	Timezone string `json:"timezone"`
 }
 
 var htmlCode = `

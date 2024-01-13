@@ -3,3 +3,5 @@ vendor/
 node_modules
 logs/
 go.sum
+.idea/
+.DS_Store

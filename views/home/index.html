@@ -1,17 +1,41 @@
-{% extends "partials/base.html" %} {% block content %}
-<body class="bg-gray-100">
-  <!-- TODO: write the html of home page  -->
-  {% if user.Email %}
-  <h1>User is authintacated -> {{user.Email}}</h1>
-  <a href="/logout">Log out</a>
-  <a href="/domains">Domains</a>
-  <a href="/account">Account</a>
-  <a href="https://t.me/{{telegram_bot}}?start={{id}}" target="_blank"
-    >Click here to go to the bot!</a
-  >
-  {% else %}
-  <h1>User is not authintacated</h1>
-  <a href="/signup">Sign up</a>
-  <a href="/login">Log in</a>
+{% extends "partials/base.html" %}
+{% block content %}
+<body class="bg-gray-100 flex flex-col min-h-screen">
+  <header class="w-full bg-gray-100 shadow-md p-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+        <div class="text-2xl font-bold text-gray-800">
+          <a href="/">CertAlert</a>
+        </div>
+        <div class="text-sm text-gray-500">Beta</div>
+    </div>
+    {% if user.Email %}
+      <div class="flex pl-4 pr-4">
+        <a href="/domains" class="text-gray-200 hover:text-white font-bold">Dashboard ->]</a>
+      </div>
+    {% else  %}
+      <div class="flex items-center space-x-4 pl-4 pr-4">
+        <a href="/login" class="text-gray-200 hover:text-blue-500">Login</a>
+        <a href="/signup" class="text-white bg-blue-500 px-4 py-2 rounded-xl border border-blue-500">Sign up</a>
+      </div>
+    {% endif %}
+  </header>
+  <main class="flex justify-center items-center">
+    <div class="mx-auto p-8">
+      <div class="flex justify-between items-center mb-12"> <!-- Change here -->
+        <div class="w-full mb-8">
+          <h1 class="text-4xl font-bold mb-3">SSL Certificate Expiry Monitoring</h1>
+          <p class="text-gray-500 pt-2 pb-3">Stay secure, stay informed, and stay on top of your SSL certificates with CertAlert!</p>
+          {% if user.Email %}
+          <a href="/domains" class="px-6 py-3 bg-blue-500 text-white rounded-lg">Dashboard</a>
+          {% else %}
+          <a href="/signup" class="mt-8 px-6 py-3 bg-blue-500 text-white rounded-lg">Start Monitoring</a>
+          {% endif %}
+        </div>
+        <div class="w-full">
+          <img src="./../../static/domains.png" alt="Internal Dashboard" class="w-full h-auto shadow-md rounded-md">
+        </div>
+      </div>
+    </div>
+  </main>
 </body>
-{% endif %} {% endblock %}
+{% endblock %}

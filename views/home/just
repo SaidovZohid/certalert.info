@@ -1,0 +1,12 @@
+<!-- {% if user.Email %}
+  <h1>User is authintacated -> {{user.Email}}</h1>
+  <a href="/logout">Log out</a>
+  <a href="/domains">Domains</a>
+  <a href="/account">Account</a>
+  <a href="https://t.me/{{telegram_bot}}?start={{id}}" target="_blank"
+    >Click here to go to the bot!</a
+  >
+  {% else %}
+  <h1>User is not authintacated</h1>
+  <a href="/signup">Sign up</a>
+  <a href="/login">Log in</a> -->

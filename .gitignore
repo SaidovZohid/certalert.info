@@ -5,3 +5,4 @@ logs/
 go.sum
 .idea/
 .DS_Store
+bin/

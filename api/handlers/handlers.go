@@ -153,7 +153,7 @@ func handleLoginDependencies(c *fiber.Ctx, h *handlerV1, id int64, data *User) e
 		return errors.New("failed to create jwt token, try again")
 	}
 
-	ipAddress := c.Get("X-Forwarded-For")
+	ipAddress := c.IP()
 
 	locationInfo, err := GetLocation(ipAddress, h.cfg)
 	if err != nil {

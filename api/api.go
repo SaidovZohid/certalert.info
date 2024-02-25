@@ -183,7 +183,6 @@ func New(opt *RoutetOptions) *fiber.App {
 		Tokens:                make(map[string]handlers.TokenDataValidAndToken, 0),
 		ForgotPasswordUserReq: make(map[string]string, 0),
 	})
-
 	app.Get("/", handlers.HandleGetLandingPage)
 	app.Get("/test", func(c *fiber.Ctx) error {
 		return c.SendString("Verification link sent!")
